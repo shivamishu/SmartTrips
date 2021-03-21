@@ -1,5 +1,5 @@
 ## Smart Trips
-Homework Assignment 1
+Homework Assignment 1  
 Author: Shivam Shrivastav  
 Smart Trips: An Android mobile application to build and save smart trips.
 
