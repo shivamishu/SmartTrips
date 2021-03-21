@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Smart Trips</string>
+    <string name="intro_msg">Hey! Let\'s get started...</string>
+    <string name="source_location">Source Location</string>
+    <string name="destination_location">Destination Location</string>
+    <string name="next">Next</string>
+    <string name="round_trip">Round Trip ?</string>
+    <string name="todo">TODO</string>
+    <string name="tripDetails">Trip Details</string>
+    <string name="errorSrcDest">Please enter source and destination address to proceed</string>
+    <string name="errorRoute">An error occurred while fetching the route. Please go back and try again.</string>
+    <string name="distance">Distance:</string>
+    <string name="time">Time:</string>
+
+    <string name="drive">Drive</string>
+    <string name="bicycle">Bicycle</string>
+    <string name="walk">Walk</string>
+    <string name="transit">Transit</string>
+    <string name="mode">Mode </string>
+    <string name="miles">miles </string>
+    <string name="saveTrip">Save Trip</string>
+    <string name="tripSaved">Your trip is saved</string>
+    <string name="shareTrip">Share trip</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="search_along">Search along the route</string>
+    <string name="popular">Popular</string>
+    <string name="restaurant">Restaurants</string>
+    <string name="charger">Charging Points</string>
+    <string name="gas">Gas Stations</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="placeTitle">Place Title</string>
+    <string name="filter_added">All the selections are added to the trip</string>
+    <string name="distance1">Distance: 10 miles</string>
+    <string name="time1">Time: 20 min</string>
+    <string name="add_places_along_the_route">Add places along the route</string>
+    <string name="add_places_along_the_route2">Add %1$s along the route</string>
+</resources>
