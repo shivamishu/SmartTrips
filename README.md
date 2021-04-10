@@ -1,7 +1,7 @@
 # CMPE277 Project
 ## Smart Trips
-Homework Assignment 1  
-Author: Shivam Shrivastav  
+ 
+Author: Shivam Shrivastav, Praveen Nayak  
 Smart Trips: An Android mobile application to build and save smart trips.
 
 ## Setup Required
