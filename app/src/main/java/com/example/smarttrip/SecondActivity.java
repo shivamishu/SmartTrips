@@ -9,6 +9,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -141,7 +142,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         Intent intent = new Intent(this, SearchAlongActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString("filterType", filterType);
-
+        bundle.putParcelableArrayList("waypointlist", (ArrayList<? extends Parcelable>) decodedPoints);
         intent.putExtras(bundle);
         //call second activity
         try{
