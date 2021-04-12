@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.NearBySearchAPICall;
+import com.example.smarttrip.utils.IDistanceMatrixAPICall;
 import com.example.smarttrip.utils.INearBySearchAPICall;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,8 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class SearchAlongActivity extends AppCompatActivity  implements INearBySearchAPICall {
+public class SearchAlongActivity extends AppCompatActivity implements IDistanceMatrixAPICall {
     public static final String apiKey = BuildConfig.MAPS_API_KEY;
+    ArrayList<GoogleResponse> data = new ArrayList<GoogleResponse>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,15 +44,15 @@ public class SearchAlongActivity extends AppCompatActivity  implements INearBySe
         String filterType = bundle.getString("filterType");
         String title = String.format(getString(R.string.add_places_along_the_route2), filterType);
         titleAlong.setText(title);
-
+        String mode = bundle.getString("mode");
+        String srcAddress = bundle.getString("srcAddress");
         List<LatLng> polyPoints = bundle.getParcelableArrayList("waypointlist");
         List<LatLng> upperBound = new ArrayList<>();
         List<LatLng> lowerBound = new ArrayList<>();
-        List<LatLng> cordsList = new ArrayList<>();
         int radius = 10000;
 
         int polyLength = polyPoints.size();
-        Log.d("AllWayPointsLength======================================> " , String.valueOf(polyLength));
+        Log.d("AllWayPointsLength==============================================>", String.valueOf(polyLength));
 
         for (int j = 0; j <= polyLength - 1; j++) {
             LatLng pLatLng = polyPoints.get(j);
@@ -72,40 +74,35 @@ public class SearchAlongActivity extends AppCompatActivity  implements INearBySe
             lowerBound.add(latLngLower);
         }
 
-        Log.d("AllWayPoints======================================> " , String.valueOf(polyPoints));
-        Log.d("UpperBound======================================>" , String.valueOf(upperBound));
-        Log.d("LowerBound======================================>" , String.valueOf(lowerBound));
+        Log.d("AllWayPointsLength==============================================>", String.valueOf(polyPoints));
+        Log.d("UpperBoundAppendLowerBound======================================>", String.valueOf(upperBound));
+        Log.d("LowerBound======================================================>", String.valueOf(lowerBound));
         Collections.reverse(lowerBound);
-        Log.d("ReverseLowerBound======================================>" , String.valueOf(lowerBound));
+        Log.d("ReverseLowerBound===============================================>", String.valueOf(lowerBound));
         upperBound.addAll(lowerBound);
-        Log.d("UpperBoundAppendLowerBound======================================>" , String.valueOf(upperBound));
+        Log.d("UpperBoundAppendLowerBound======================================>", String.valueOf(upperBound));
 
-        for(int i = 0; i <= polyPoints.size(); i+=40){
+        for (int i = 0; i <= polyPoints.size(); i += 40) {
             LatLng cords = polyPoints.get(i);
-            Log.d("cordinates are " , cords.latitude +","+ cords.longitude);
+            Log.d("cordinates are ", cords.latitude + "," + cords.longitude);
             boolean containsvalidCords = true;
             containsvalidCords = PolyUtil.containsLocation(cords.latitude, cords.longitude, upperBound, true);
-            if(containsvalidCords == true){
-
-
-                Log.d("CordinatesWithinPolygon======================================> " , cords.latitude +","+ cords.longitude);
-
+            if (containsvalidCords == true) {
+                Log.d("CordinatesWithinPolygon=========================================>", cords.latitude + "," + cords.longitude);
                 String apiURL = null;
                 try {
-                    String locationCords = "&location=" + URLEncoder.encode(String.valueOf(cords.latitude), "utf-8") + "," + URLEncoder.encode(String.valueOf(cords.longitude), "utf-8") ;
+                    String locationCords = "&location=" + URLEncoder.encode(String.valueOf(cords.latitude), "utf-8") + "," + URLEncoder.encode(String.valueOf(cords.longitude), "utf-8");
                     String wayptRadius = "&radius=" + URLEncoder.encode(String.valueOf(radius), "utf-8");
                     String searchType = "&type=" + filterType;
                     apiURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=" + apiKey + locationCords + wayptRadius + searchType;
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                //String apiURL ="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&key=AIzaSyBLe85aRYXxT3x2CR6uhy9GaL85LqnHPVo";
-                Log.d("ApiUrl======================================>" , apiURL);
-                new NearBySearchAPICall(this).execute(apiURL);
+                Log.d("ApiUrl==========================================================>", apiURL);
+                new NearBySearchAPICall(this, mode, srcAddress).execute(apiURL);
 
             }
         }
-
 
 //        setSupportActionBar(findViewById(R.id.toolbar));
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -135,12 +132,14 @@ public class SearchAlongActivity extends AppCompatActivity  implements INearBySe
     public class MainCardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView titleView;
-//        public TextView distanceView;
-//        public TextView timeView;
+        public TextView distanceView;
+        public TextView timeView;
 
         public MainCardViewHolder(@NonNull View itemView) {
             super(itemView);
             titleView = itemView.findViewById(R.id.titleView);
+            timeView = itemView.findViewById(R.id.time);
+            distanceView = itemView.findViewById(R.id.distance);
         }
 
         @Override
@@ -150,10 +149,10 @@ public class SearchAlongActivity extends AppCompatActivity  implements INearBySe
     }
 
     public class MainCardAdapter extends RecyclerView.Adapter<SearchAlongActivity.MainCardViewHolder> {
-        private ArrayList<String> dataList;
+        private ArrayList<GoogleResponse> dataList;
         private Context context;
 
-        public MainCardAdapter(Context context, ArrayList<String> dataList) {
+        public MainCardAdapter(Context context, ArrayList<GoogleResponse> dataList) {
             this.context = context;
             this.dataList = dataList;
         }
@@ -174,8 +173,10 @@ public class SearchAlongActivity extends AppCompatActivity  implements INearBySe
 
         @Override
         public void onBindViewHolder(@NonNull MainCardViewHolder holder, int position) {
-            String item = dataList.get(position);
-            holder.titleView.setText(item);
+            GoogleResponse item = dataList.get(position);
+            holder.titleView.setText(item.getName());
+            holder.timeView.setText(item.getDurationText());
+            holder.distanceView.setText(item.getDistanceText());
         }
 
         @Override
@@ -185,12 +186,14 @@ public class SearchAlongActivity extends AppCompatActivity  implements INearBySe
     }
 
     @Override
-    public void onNearBySearchAPICallSuccess(Set<GoogleResponse> finalResult) {
-        ArrayList<String> data = new ArrayList<String>();
-        for (GoogleResponse s : finalResult) {
-            data.add("Place " + s.getName());
-            Log.d("RestaurantNames======================================> " , s.getName());
-        }
+    public void onDistanceMatrixAPICallSuccess(GoogleResponse finalResult) {
+
+        Log.d("NearByNames=====================================================>", finalResult.getName());
+        Log.d("NearByDistanceText==============================================>", finalResult.getDistanceText());
+        Log.d("NearByDistanceValue=============================================>", finalResult.getDistanceValue());
+        Log.d("NearByDurationText==============================================>", finalResult.getDurationText());
+        Log.d("NearByDurationValue=============================================>", finalResult.getDurationValue());
+        data.add(finalResult);
         RecyclerView recyclerCard = findViewById(R.id.card_recycler_view);
         recyclerCard.setAdapter(new MainCardAdapter(this, data));
 

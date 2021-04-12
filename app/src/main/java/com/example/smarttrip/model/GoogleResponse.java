@@ -9,6 +9,11 @@ public class GoogleResponse implements Serializable {
     private String rating;
     private String name;
 
+    private String durationValue;
+    private String durationText;
+    private String distanceValue;
+    private String distanceText;
+
 
     public double getLat() {
         return lat;
@@ -50,16 +55,37 @@ public class GoogleResponse implements Serializable {
         this.name = name;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        long temp;
-        temp = Double.doubleToLongBits(lng);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(lat);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        return result;
+
+    public String getDurationValue() {
+        return durationValue;
+    }
+
+    public void setDurationValue(String durationValue) {
+        this.durationValue = durationValue;
+    }
+
+    public String getDurationText() {
+        return durationText;
+    }
+
+    public void setDurationText(String durationText) {
+        this.durationText = durationText;
+    }
+
+    public String getDistanceValue() {
+        return distanceValue;
+    }
+
+    public void setDistanceValue(String distanceValue) {
+        this.distanceValue = distanceValue;
+    }
+
+    public String getDistanceText() {
+        return distanceText;
+    }
+
+    public void setDistanceText(String distanceText) {
+        this.distanceText = distanceText;
     }
 
     @Override
@@ -79,6 +105,19 @@ public class GoogleResponse implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(lng);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(lat);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+
+    @Override
     public String toString() {
         return "GoogleResponse{" +
                 "lat=" + lat +
@@ -86,8 +125,10 @@ public class GoogleResponse implements Serializable {
                 ", openNow='" + openNow + '\'' +
                 ", rating='" + rating + '\'' +
                 ", name='" + name + '\'' +
+                ", durationValue='" + durationValue + '\'' +
+                ", durationText='" + durationText + '\'' +
+                ", distanceValue='" + distanceValue + '\'' +
+                ", distanceText='" + distanceText + '\'' +
                 '}';
     }
-
-
 }

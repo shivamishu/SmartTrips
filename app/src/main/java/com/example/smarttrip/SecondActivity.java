@@ -143,6 +143,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         Bundle bundle = new Bundle();
         bundle.putString("filterType", filterType);
         bundle.putParcelableArrayList("waypointlist", (ArrayList<? extends Parcelable>) decodedPoints);
+        bundle.putString("mode",mode);
+        LatLng srcLoc = this.getLatLngCordFromAddress(srcAddress);
+        bundle.putString("srcAddress",srcLoc.latitude +","+ srcLoc.longitude);
         intent.putExtras(bundle);
         //call second activity
         try{
