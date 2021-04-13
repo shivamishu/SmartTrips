@@ -136,7 +136,8 @@
                 android:backgroundTint="@android:color/transparent"
                 android:hint="@string/source_location"
                 android:paddingStart="10dp"
-                android:paddingEnd="10dp" />
+                android:paddingEnd="10dp"
+                android:text="San Jose, CA, USA" />
 
         </androidx.cardview.widget.CardView>
 
@@ -172,7 +173,8 @@
                 android:backgroundTint="@android:color/transparent"
                 android:hint="@string/destination_location"
                 android:paddingStart="10dp"
-                android:paddingEnd="10dp" />
+                android:paddingEnd="10dp"
+                android:text="Cupertino, CA, USA" />
 
 
         </androidx.cardview.widget.CardView>

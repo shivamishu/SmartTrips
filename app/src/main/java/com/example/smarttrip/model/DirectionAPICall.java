@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,12 +32,14 @@ public class DirectionAPICall {
     private String srcString;
     private String destString;
     private String mode;
+    private HashSet<GoogleResponse> waypointsSet;
 
-    public DirectionAPICall(IDirectionAPICall executor, String srcString, String destString, String mode) {
+    public DirectionAPICall(IDirectionAPICall executor, String srcString, String destString, String mode, HashSet<GoogleResponse> waypointsSet) {
         this.executor = executor;
         this.srcString = srcString;
         this.destString = destString;
         this.mode = mode;
+        this.waypointsSet = waypointsSet;
     }
 
     public void executeGetRoute() {
@@ -44,7 +47,19 @@ public class DirectionAPICall {
             String org = "&origin=" + URLEncoder.encode(srcString, "utf-8");
             String dest = "&destination=" + URLEncoder.encode(destString, "utf-8");
             String travelMode = "&mode=" + mode;
-            String apiURL = "https://maps.googleapis.com/maps/api/directions/json?key=" + apiKey + org + dest + travelMode;
+            String apiURL;
+            if(waypointsSet.size() > 0){
+                String waypoints = "&waypoints=optimize:true";      //optimize:true|Los+Angeles,CA|Cupertino,CA
+                for (GoogleResponse point : waypointsSet) {
+                    waypoints = waypoints + "|" + URLEncoder.encode(""+point.getLat()+","+point.getLng(), "utf-8");
+                }
+                URLEncoder.encode(destString, "utf-8");
+                apiURL = "https://maps.googleapis.com/maps/api/directions/json?key=" + apiKey + org + dest + travelMode + waypoints;
+            }else{
+                apiURL = "https://maps.googleapis.com/maps/api/directions/json?key=" + apiKey + org + dest + travelMode;
+            }
+            Log.d("Direction URL", apiURL);
+
             new DirectionsAPIAsyncCall().execute(apiURL);
 //
         } catch (UnsupportedEncodingException err) {

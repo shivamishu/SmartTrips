@@ -34,5 +34,7 @@
     <string name="time1">Time: 20 min</string>
     <string name="add_places_along_the_route">Add places along the route</string>
     <string name="add_places_along_the_route2">Add %1$s along the route</string>
-    <string name="opening">Opening Hours: 8:00 AM to 11:00 PM</string>
+    <string name="opening">Open</string>
+    <string name="closed">Closed</string>
+    <string name="waypointsupdated">Waypoints updated successfully</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.example.smarttrip;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
+import android.widget.RatingBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,16 +27,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.PolyUtil;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class SearchAlongActivity extends AppCompatActivity implements IDistanceMatrixAPICall {
     public static final String apiKey = BuildConfig.MAPS_API_KEY;
-    ArrayList<GoogleResponse> data = new ArrayList<GoogleResponse>();
+    ArrayList<GoogleResponse> data = new ArrayList<>();
+    public HashSet<GoogleResponse> selectedList = new HashSet<>();
+    ;
+    public RecyclerView recyclerCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +51,24 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         TextView titleAlong = (TextView) findViewById(R.id.along_title);
         Bundle bundle = getIntent().getExtras();
         String filterType = bundle.getString("filterType");
-        String title = String.format(getString(R.string.add_places_along_the_route2), filterType);
+        String title;
+        switch (filterType) {
+            case "tourist_attraction":
+                title = "popular places";
+                break;
+            case "restaurant":
+                title = "restaurants";
+                break;
+            case "gas_station":
+                title = "gas stations";
+                break;
+            case "ev charger":
+                title = "ev chargers";
+                break;
+            default:
+                title = "places";
+        }
+        title = String.format(getString(R.string.add_places_along_the_route2), title);
         titleAlong.setText(title);
         String mode = bundle.getString("mode");
         String srcAddress = bundle.getString("srcAddress");
@@ -94,6 +120,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
                     String locationCords = "&location=" + URLEncoder.encode(String.valueOf(cords.latitude), "utf-8") + "," + URLEncoder.encode(String.valueOf(cords.longitude), "utf-8");
                     String wayptRadius = "&radius=" + URLEncoder.encode(String.valueOf(radius), "utf-8");
                     String searchType = "&type=" + filterType;
+                    searchType = filterType == "ev charger" ? "&keyword=ev charger" : searchType;
                     apiURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=" + apiKey + locationCords + wayptRadius + searchType;
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -122,11 +149,15 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             public void onClick(View view) {
                 Snackbar.make(view, getString(R.string.filter_added), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                Intent data = new Intent();
+                data.putExtra("selectedList", selectedList);
+                // Activity finished ok, return the data
+                setResult(RESULT_OK, data);
                 finish();
             }
         });
-//        RecyclerView recyclerCard = findViewById(R.id.card_recycler_view);
-//        recyclerCard.setAdapter(new MainCardAdapter(this, data));
+        recyclerCard = findViewById(R.id.card_recycler_view);
+        recyclerCard.setAdapter(new MainCardAdapter(this, data));
     }
 
     public class MainCardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -134,12 +165,20 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         public TextView titleView;
         public TextView distanceView;
         public TextView timeView;
+        public CheckBox checkBox;
+        public View item;
+        public TextView openNowView;
+        public RatingBar ratingBarView;
 
         public MainCardViewHolder(@NonNull View itemView) {
             super(itemView);
             titleView = itemView.findViewById(R.id.titleView);
             timeView = itemView.findViewById(R.id.time);
             distanceView = itemView.findViewById(R.id.distance);
+            checkBox = itemView.findViewById(R.id.checkBox);
+            item = itemView;
+            openNowView = itemView.findViewById(R.id.opening);
+            ratingBarView = itemView.findViewById(R.id.ratingBar);
         }
 
         @Override
@@ -162,12 +201,12 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         @Override
         public MainCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             CardView itemView = (CardView) LayoutInflater.from(context).inflate(R.layout.card_item_view, parent, false);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    CheckBox cb = v.findViewById(R.id.checkBox);
-                    cb.toggle();
-                }
-            });
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                public void onClick(View v) {
+//                    CheckBox cb = v.findViewById(R.id.checkBox);
+//                    cb.toggle();
+//                }
+//            });
             return new MainCardViewHolder(itemView);
         }
 
@@ -177,6 +216,24 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             holder.titleView.setText(item.getName());
             holder.timeView.setText(item.getDurationText());
             holder.distanceView.setText(item.getDistanceText());
+            holder.openNowView.setText(item.getOpenNow());
+            if (item.getRating() != null && StringUtils.isNotEmpty(item.getRating())) {
+                holder.ratingBarView.setRating(Float.parseFloat(item.getRating()));
+            }
+            holder.item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CheckBox cb = holder.checkBox;
+                    cb.toggle();
+                    GoogleResponse currItem = dataList.get(position);
+                    if (cb.isChecked()) {
+                        selectedList.add(currItem);
+                    } else {
+                        //remove from list
+                        selectedList.remove(currItem);
+                    }
+                }
+            });
         }
 
         @Override
@@ -188,14 +245,31 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
     @Override
     public void onDistanceMatrixAPICallSuccess(GoogleResponse finalResult) {
 
-        Log.d("NearByNames=====================================================>", finalResult.getName());
-        Log.d("NearByDistanceText==============================================>", finalResult.getDistanceText());
-        Log.d("NearByDistanceValue=============================================>", finalResult.getDistanceValue());
-        Log.d("NearByDurationText==============================================>", finalResult.getDurationText());
-        Log.d("NearByDurationValue=============================================>", finalResult.getDurationValue());
+//        Log.d("NearByNames=====================================================>", finalResult.getName());
+//        Log.d("NearByDistanceText==============================================>", finalResult.getDistanceText());
+//        Log.d("NearByDistanceValue=============================================>", finalResult.getDistanceValue());
+//        Log.d("NearByDurationText==============================================>", finalResult.getDurationText());
+//        Log.d("NearByDurationValue=============================================>", finalResult.getDurationValue());
+        String isOpen;
+        String distanceText = finalResult.getDistanceText().replace("mi", getString(R.string.miles));
+        finalResult.setDistanceText(distanceText);
+        if (finalResult.getOpenNow() != null && StringUtils.isNotEmpty(finalResult.getOpenNow())) {
+            if (finalResult.getOpenNow() == "true") {
+                isOpen = getString(R.string.opening);
+                ;
+            } else {
+                isOpen = getString(R.string.closed);
+                ;
+            }
+            // Log.d("NearByOpenNow===================================================>", finalResult.getOpenNow());
+            finalResult.setOpenNow(isOpen);
+        } else {
+            finalResult.setOpenNow("NA");
+        }
         data.add(finalResult);
-        RecyclerView recyclerCard = findViewById(R.id.card_recycler_view);
-        recyclerCard.setAdapter(new MainCardAdapter(this, data));
+//        RecyclerView recyclerCard = findViewById(R.id.card_recycler_view);
+//        recyclerCard.setAdapter(new MainCardAdapter(this, data));
+        recyclerCard.getAdapter().notifyDataSetChanged();
 
     }
 
