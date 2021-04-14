@@ -1,12 +1,15 @@
 package com.example.smarttrip;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,28 +17,78 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.smarttrip.utils.PlacesAutoComplete;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.UrlTileProvider;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.maps.android.collections.CircleManager;
+import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 //    public Map<String, String> addressMap = new HashMap<>();
     public static AutoCompleteTextView autoCompleteTextViewSrc = null;
     public static AutoCompleteTextView autoCompleteTextViewDest = null;
     public  static ChipGroup chipGroup = null;
+    private static final int REQUEST_CODE = 0612;
+
+
+    private static final String TAG = "MainActivity";
+    private static final String ARG_NAME = "username";
+    FirebaseAuth firebaseAuth;
+    GoogleSignInClient googleSignInClient;
+
+    public static void startActivity(Context context, String username, Uri photoUrl) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(ARG_NAME, username);
+        intent.putExtra("imageUri", photoUrl.toString());
+
+        context.startActivity(intent);
+    }
+    public static void startActivityAsGuest(Context context, String username) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(ARG_NAME, username);
+        context.startActivity(intent);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //ImageView ivUserImage = (ImageView) findViewById(R.id.ivUserImage);
+
+        //Picasso.get().load(getIntent().getStringExtra("imageUri")).resize(50,50).centerCrop().into(ivUserImage);
+
+        TextView textView = findViewById(R.id.textViewWelcome);
+
+        if (getIntent().hasExtra(ARG_NAME)) {
+            textView.setText(String.format("Welcome - %s", getIntent().getStringExtra(ARG_NAME)));
+        }
+        if(getIntent().getStringExtra(ARG_NAME) != "Guest") {
+            findViewById(R.id.buttonLogout).setOnClickListener(this);
+            googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN);
+            firebaseAuth = FirebaseAuth.getInstance();
+        }
+
         autoCompleteTextViewSrc = findViewById(R.id.autocompleteSrc);
         autoCompleteTextViewDest = findViewById(R.id.autocompleteDest);
         chipGroup = findViewById(R.id.chipGroup);
@@ -209,6 +262,43 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.buttonLogout:
+                signOut();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivityForResult(intent,REQUEST_CODE);
+                break;
+        }
+    }
+    private void signOut() {
+        // Firebase sign out
+        firebaseAuth.signOut();
+        // Google sign out
+        googleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // Google Sign In failed, update UI appropriately
+                        Log.w(TAG, "Signed out of google");
+                    }
+                });
+    }
+    private void revokeAccess() {
+        // Firebase sign out
+        firebaseAuth.signOut();
+        // Google revoke access
+        googleSignInClient.revokeAccess().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // Google Sign In failed, update UI appropriately
+                        Log.w(TAG, "Revoked Access");
+                    }
+                });
     }
 
 }

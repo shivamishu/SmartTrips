@@ -1,5 +1,6 @@
 package com.example.smarttrip;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.os.Parcelable;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import com.example.smarttrip.model.DirectionAPICall;
 
 import com.example.smarttrip.model.GoogleResponse;
+import com.example.smarttrip.model.UsersTripInfo;
 import com.example.smarttrip.utils.IDirectionAPICall;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -26,6 +29,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 //import com.squareup.picasso.Picasso;
 
@@ -54,6 +64,10 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     public TextView modeView;
     public Toolbar toolbar;
     public HashSet<GoogleResponse> wayPointListSet = new HashSet<>();
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    UsersTripInfo usersTripInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +102,36 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         Fragment mapsFragment = new MapFragment();
         //open fragment
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, mapsFragment).commit();
+        usersTripInfo = new UsersTripInfo();
 
         //floating button save trip attaching click function
         FloatingActionButton saveTrip = (FloatingActionButton) findViewById(R.id.saveTrip);
         saveTrip.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    // Name, email address, and profile photo Url
+                    String name = user.getDisplayName();
+                    String email = user.getEmail();
+                    Uri photoUrl = user.getPhotoUrl();
+                    String tripPath = photoUrl.getPath().toString();
+
+
+                    // Check if user's email is verified
+                    boolean emailVerified = user.isEmailVerified();
+
+                    // The user's ID, unique to the Firebase project. Do NOT use this value to
+                    // authenticate with your backend server, if you have one. Use
+                    // FirebaseUser.getIdToken() instead.
+                    String uid = user.getUid();
+                    firebaseDatabase = FirebaseDatabase.getInstance();
+                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo");
+                    addDatatoFirebase(uid, name, email, tripPath);
+                    Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+
+                Snackbar.make(view, "SignIn to Save Trip", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -142,6 +180,8 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                 openSearchAlongActivity("ev charger");
             }
         });
+
+
 
     }
 
@@ -323,5 +363,16 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             return null;
         }
 
+    }
+
+    private void addDatatoFirebase(String uid,String name, String email, String tripPath) {
+        // below 3 lines of code is used to set
+        // data in our object class.
+        usersTripInfo.setUid(uid);
+        usersTripInfo.setUserName(name);
+        usersTripInfo.setUserEmail(email);
+        usersTripInfo.setUserTripPath(tripPath);
+        databaseReference.setValue(usersTripInfo);
+        //Toast.makeText(SecondActivity.this, "data added", Toast.LENGTH_SHORT).show();
     }
 }
