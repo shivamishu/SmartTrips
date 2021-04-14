@@ -7,10 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CalendarView;
 import android.widget.CheckBox;
 import android.widget.RatingBar;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.NearBySearchAPICall;
 import com.example.smarttrip.utils.IDistanceMatrixAPICall;
-import com.example.smarttrip.utils.INearBySearchAPICall;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class SearchAlongActivity extends AppCompatActivity implements IDistanceMatrixAPICall {
     public static final String apiKey = BuildConfig.MAPS_API_KEY;

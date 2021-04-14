@@ -1,16 +1,10 @@
 package com.example.smarttrip;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
@@ -18,37 +12,34 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.smarttrip.model.DirectionAPICall;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
+import com.example.smarttrip.model.DirectionAPICall;
 import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.UsersTripInfo;
 import com.example.smarttrip.utils.IDirectionAPICall;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
-//import com.squareup.picasso.Picasso;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+//import com.squareup.picasso.Picasso;
 
 
 public class SecondActivity extends AppCompatActivity implements IDirectionAPICall {
@@ -129,10 +120,11 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     addDatatoFirebase(uid, name, email, tripPath);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-                }
+                }   else {
 
-                Snackbar.make(view, "SignIn to Save Trip", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                    Snackbar.make(view, "SignIn to Save Trip", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
             }
         });
 //        LinearLayout mapLayout = findViewById(R.id.mapLayout);
