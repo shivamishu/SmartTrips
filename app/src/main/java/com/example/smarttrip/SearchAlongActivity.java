@@ -37,7 +37,6 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
     public static final String apiKey = BuildConfig.MAPS_API_KEY;
     ArrayList<GoogleResponse> data = new ArrayList<>();
     public HashSet<GoogleResponse> selectedList = new HashSet<>();
-    ;
     public RecyclerView recyclerCard;
 
     @Override
@@ -46,6 +45,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         setContentView(R.layout.activity_along_search);
         TextView titleAlong = (TextView) findViewById(R.id.along_title);
         Bundle bundle = getIntent().getExtras();
+        selectedList = (HashSet<GoogleResponse>) getIntent().getSerializableExtra("selectedList");
         String filterType = bundle.getString("filterType");
         String title;
         switch (filterType) {
@@ -216,6 +216,10 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             if (item.getRating() != null && StringUtils.isNotEmpty(item.getRating())) {
                 holder.ratingBarView.setRating(Float.parseFloat(item.getRating()));
             }
+            if (selectedList.contains(item)) {
+                CheckBox checkBox = holder.checkBox;
+                checkBox.setChecked(true);
+            }
             holder.item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -262,10 +266,12 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         } else {
             finalResult.setOpenNow("NA");
         }
+        int size = data.size();
         data.add(finalResult);
 //        RecyclerView recyclerCard = findViewById(R.id.card_recycler_view);
 //        recyclerCard.setAdapter(new MainCardAdapter(this, data));
-        recyclerCard.getAdapter().notifyDataSetChanged();
+//        recyclerCard.getAdapter().notifyDataSetChanged();
+        recyclerCard.getAdapter().notifyItemInserted(size);
 
     }
 

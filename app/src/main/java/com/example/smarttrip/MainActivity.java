@@ -32,10 +32,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-//    public Map<String, String> addressMap = new HashMap<>();
+    //    public Map<String, String> addressMap = new HashMap<>();
     public static AutoCompleteTextView autoCompleteTextViewSrc = null;
     public static AutoCompleteTextView autoCompleteTextViewDest = null;
-    public  static ChipGroup chipGroup = null;
+    public static ChipGroup chipGroup = null;
     private static final int REQUEST_CODE = 0612;
 
 
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         context.startActivity(intent);
     }
+
     public static void startActivityAsGuest(Context context, String username) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(ARG_NAME, username);
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (getIntent().hasExtra(ARG_NAME)) {
             textView.setText(String.format("Welcome - %s", getIntent().getStringExtra(ARG_NAME)));
         }
-        if(getIntent().getStringExtra(ARG_NAME) != "Guest") {
+        if (getIntent().getStringExtra(ARG_NAME) != "Guest") {
             findViewById(R.id.buttonLogout).setOnClickListener(this);
             googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN);
             firebaseAuth = FirebaseAuth.getInstance();
@@ -158,14 +159,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Button nextButton = (Button) findViewById(R.id.button);
 
-        nextButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 openStep2Activity();
             }
         });
     }
 
-    private void openStep2Activity(){
+    private void openStep2Activity() {
         Intent intent = new Intent(this, SecondActivity.class);
         Bundle bundle = new Bundle();
         String srcAddress = autoCompleteTextViewSrc.getText().toString();
@@ -174,25 +175,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("src", srcAddress);
         Log.d("dest", destAddress);
         Log.d("Mode", checkedChip);
-        if(!srcAddress.toString().isEmpty() && !destAddress.toString().isEmpty()){
+        if (!srcAddress.toString().isEmpty() && !destAddress.toString().isEmpty()) {
             bundle.putString("SourceAddress", srcAddress);
             bundle.putString("DestinationAddress", destAddress);
             bundle.putString("Mode", checkedChip);
             intent.putExtras(bundle);
             //call second activity
             startActivity(intent);
-        }else{
+        } else {
             Toast.makeText(this, getString(R.string.errorSrcDest),
                     Toast.LENGTH_LONG).show();
         }
     }
-    private String getSelectedMode(){
+
+    private String getSelectedMode() {
         int i = 0;
         String checked = "driving";
         while (i < 4) {
             Chip chip = (Chip) chipGroup.getChildAt(i);
-            if (chip.isChecked() ) {
-                switch(i) {
+            if (chip.isChecked()) {
+                switch (i) {
                     case 1:
                         checked = "bicycling";
                         break;
@@ -207,46 +209,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             i++;
-        };
+        }
+        ;
         return checked;
     }
-    private LatLng getLatLngCordFromAddress(String address){
+
+    private LatLng getLatLngCordFromAddress(String address) {
 
         Geocoder geoCoder = new Geocoder(MainActivity.this);
         List<Address> addressesList;
 
         try {
             addressesList = geoCoder.getFromLocationName(address, 1);
-            if(addressesList != null){
+            if (addressesList != null) {
                 Address addressItem = addressesList.get(0);
                 LatLng latLng = new LatLng(addressItem.getLatitude(), addressItem.getLongitude());
                 return latLng;
-            }
-            else{
+            } else {
                 return null;
             }
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             err.printStackTrace();
             return null;
         }
 
     }
 
-    private Address getAddressFromLatLngCord(LatLng latLng){
+    private Address getAddressFromLatLngCord(LatLng latLng) {
         Geocoder geoCoder = new Geocoder(MainActivity.this);
         List<Address> addressesList;
         try {
             addressesList = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 5);
-            if(addressesList != null){
+            if (addressesList != null) {
                 Address addressLine = addressesList.get(0);
                 return addressLine;
-            }
-            else{
+            } else {
                 return null;
             }
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             err.printStackTrace();
             return null;
         }
@@ -259,10 +259,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.buttonLogout:
                 signOut();
                 Intent intent = new Intent(this, LoginActivity.class);
-                startActivityForResult(intent,REQUEST_CODE);
+                startActivityForResult(intent, REQUEST_CODE);
                 break;
         }
     }
+
     private void signOut() {
         // Firebase sign out
         firebaseAuth.signOut();
@@ -276,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
     }
+
     private void revokeAccess() {
         // Firebase sign out
         firebaseAuth.signOut();

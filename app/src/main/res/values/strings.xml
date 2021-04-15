@@ -37,10 +37,10 @@
     <string name="opening">Open</string>
     <string name="closed">Closed</string>
     <string name="waypointsupdated">Waypoints updated successfully</string>
-    <string name="google_maps_key"></string>
     <string name="logout">logout</string>
     <string name="revoke_access">revoke access</string>
     <string name="welcome">welcome</string>
     <string name="signinWithGoogle">Sign In With Google</string>
     <string name="continueWithoutSignin">Continue As Guest</string>
+    <string name="or">OR</string>
 </resources>

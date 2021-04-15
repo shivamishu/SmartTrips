@@ -34,6 +34,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.math.RoundingMode;
+import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +59,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     public TextView modeView;
     public Toolbar toolbar;
     public HashSet<GoogleResponse> wayPointListSet = new HashSet<>();
+    public String gMapsString;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     UsersTripInfo usersTripInfo;
@@ -120,7 +125,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     addDatatoFirebase(uid, name, email, tripPath);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-                }   else {
+                } else {
 
                     Snackbar.make(view, "SignIn to Save Trip", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -173,6 +178,12 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             }
         });
 
+        Button openDirectionButton = (Button) findViewById(R.id.open_nav);
+        openDirectionButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openDirectionsinGMaps();
+            }
+        });
 
 
     }
@@ -200,6 +211,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         LatLng srcLoc = this.getLatLngCordFromAddress(srcAddress);
         bundle.putString("srcAddress", srcLoc.latitude + "," + srcLoc.longitude);
         intent.putExtras(bundle);
+        intent.putExtra("selectedList", wayPointListSet);
         //call second activity
         try {
             startActivityForResult(intent, REQUEST_CODE);
@@ -207,6 +219,11 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             Log.d("Error", err.toString());
         }
 
+    }
+
+    private void openDirectionsinGMaps() {
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsString));
+        startActivity(intent);
     }
 
     public ArrayList<String> getAddresses() {
@@ -248,15 +265,29 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             JSONArray legs = route.getJSONArray("legs");
             Double dist = 0.0;
             long dur = 0;
+            String directionAddressString = "/";
+            String strAddress;
+            JSONObject obj = legs.getJSONObject(0);
             //changes for multiple points
             for (int i = 0; i < legs.length(); i++) {
-                JSONObject obj = legs.getJSONObject(i);
+                obj = legs.getJSONObject(i);
                 JSONObject distance = obj.getJSONObject("distance");
                 JSONObject duration = obj.getJSONObject(("duration"));
                 dist += Double.parseDouble(distance.getString("text").replaceAll("[^\\.0123456789]", ""));
                 dur += duration.getLong("value");
+                strAddress = obj.getString("start_address");
+                directionAddressString += encodeAddressString(strAddress) + "/";
+
             }
-            String distanceString = dist + " " + getString(R.string.miles);
+            strAddress = obj.getString("end_address");
+            directionAddressString += encodeAddressString(strAddress);
+            gMapsString = "https://www.google.com/maps/dir" + directionAddressString;   //used for opening gmaps
+
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            df.setRoundingMode(RoundingMode.CEILING);
+            String distanceString = df.format(dist);
+            distanceString += " " + getString(R.string.miles);
             int day = (int) TimeUnit.SECONDS.toDays(dur);
             long hours = TimeUnit.SECONDS.toHours(dur) - (day * 24);
             long minute = TimeUnit.SECONDS.toMinutes(dur) - (TimeUnit.SECONDS.toHours(dur) * 60);
@@ -297,6 +328,23 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    public String encodeAddressString(String address) {
+        String currAddressString = address;
+        try {
+            currAddressString = currAddressString.replaceAll("\\/", "");
+            currAddressString = currAddressString.replaceAll("\\,", ",+");
+            currAddressString = currAddressString.replaceAll("\\ ", "+");
+            currAddressString = currAddressString.replaceAll("\\++", "+");
+            currAddressString = URLEncoder.encode(currAddressString, "utf-8");
+            currAddressString = currAddressString.replaceAll("\\%2C", ",");
+            currAddressString = currAddressString.replaceAll("\\%2B", "+");
+        } catch (
+                UnsupportedEncodingException err) {
+            err.printStackTrace();
+        }
+        return currAddressString;
     }
 
     private void setTripTitleText(Toolbar toolbar) {
@@ -357,7 +405,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 
     }
 
-    private void addDatatoFirebase(String uid,String name, String email, String tripPath) {
+    private void addDatatoFirebase(String uid, String name, String email, String tripPath) {
         // below 3 lines of code is used to set
         // data in our object class.
         usersTripInfo.setUid(uid);
