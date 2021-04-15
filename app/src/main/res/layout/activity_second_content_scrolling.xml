@@ -4,6 +4,7 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nested_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -54,7 +55,8 @@
                     android:drawablePadding="8dp"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableStartCompat="@drawable/ic_distance_20" />
+                    app:drawableStartCompat="@drawable/ic_distance_20"
+                    tools:ignore="MissingPrefix" />
 
                 <TextView
                     android:id="@+id/timeText"
@@ -63,7 +65,8 @@
                     android:drawablePadding="8dp"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableStartCompat="@drawable/ic_baseline_access_time_20" />
+                    app:drawableStartCompat="@drawable/ic_baseline_access_time_20"
+                    tools:ignore="MissingPrefix" />
             </com.google.android.flexbox.FlexboxLayout>
         </androidx.cardview.widget.CardView>
 
@@ -193,12 +196,21 @@
             <FrameLayout
                 android:id="@+id/frame_layout"
                 android:layout_width="match_parent"
-                android:layout_height="400dp"
+                android:layout_height="300dp"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"/>
+                android:layout_alignParentEnd="true" />
+
+            <ImageView
+                android:id="@+id/transparent_image"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:src="@color/trans_image"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:contentDescription="@string/todo" />
 
             <Button
-                android:id="@+id/open_nav"
+                android:id="@+id/open_GMaps"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
@@ -209,6 +221,19 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
                 app:icon="@drawable/ic_baseline_assistant_direction_24" />
+
+            <Button
+                android:id="@+id/whatsApp_nav"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"
+                app:icon="@drawable/ic_baseline_share_24" />
 
         </RelativeLayout>
 

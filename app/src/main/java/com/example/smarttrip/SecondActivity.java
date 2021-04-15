@@ -1,5 +1,6 @@
 package com.example.smarttrip;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -7,8 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.example.smarttrip.model.DirectionAPICall;
@@ -72,7 +76,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     DatabaseReference databaseReference;
     UsersTripInfo usersTripInfo;
 
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,6 +147,31 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                 }
             }
         });
+        NestedScrollView scrollView = findViewById(R.id.nested_scroll_view);
+        ImageView transparentImageView = (ImageView) findViewById(R.id.transparent_image);
+        transparentImageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+
+                    case MotionEvent.ACTION_MOVE:
+                        // Disallow ScrollView to intercept touch events.
+                        scrollView.requestDisallowInterceptTouchEvent(true);
+                        // Disable touch on transparent view
+                        return false;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        scrollView.requestDisallowInterceptTouchEvent(false);
+                        return true;
+
+                    default:
+                        return true;
+                }
+            }
+        });
 //        LinearLayout mapLayout = findViewById(R.id.mapLayout);
 //        mapLayout.setOnTouchListener(new View.OnTouchListener() {
 //            public boolean onTouch(View v, MotionEvent event) {
@@ -189,10 +218,19 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             }
         });
 
-        Button openDirectionButton = (Button) findViewById(R.id.open_nav);
+
+        Button openDirectionButton = (Button) findViewById(R.id.open_GMaps);
         openDirectionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                openDirectionsinGMaps();
+                openDirectionsinGMaps(gMapsString);
+            }
+        });
+
+        Button shareOnWhatsAppButton = (Button) findViewById(R.id.whatsApp_nav);
+        shareOnWhatsAppButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareOnWhatsApp(gMapsString);
             }
         });
 
@@ -230,11 +268,6 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             Log.d("Error", err.toString());
         }
 
-    }
-
-    private void openDirectionsinGMaps() {
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsString));
-        startActivity(intent);
     }
 
     public ArrayList<String> getAddresses() {
@@ -421,7 +454,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 
     }
 
-    private void addDatatoFirebase(String uid, String name, String email,String tripTitle, String tripPath, String tripTimeStamp) {
+    private void addDatatoFirebase(String uid, String name, String email, String tripTitle, String tripPath, String tripTimeStamp) {
         // below 3 lines of code is used to set
         // data in our object class.
         usersTripInfo.setUid(uid);
@@ -432,6 +465,27 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         usersTripInfo.setUserTripTimeStamp(tripTimeStamp);
         databaseReference.setValue(usersTripInfo);
     }
+
+    private void openDirectionsinGMaps(String mapsURL) {
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(mapsURL));
+        startActivity(intent);
+    }
+
+    private void shareOnWhatsApp(String shareURL) {
+        Intent whatsAppIntent = new Intent(Intent.ACTION_SEND);
+        whatsAppIntent.setType("text/plain");
+        whatsAppIntent.setPackage("com.whatsapp");
+        if (whatsAppIntent != null) {
+            whatsAppIntent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    shareURL);
+            startActivity(Intent.createChooser(whatsAppIntent, "Share on"));
+        } else {
+            Toast.makeText(this, "WhatsApp not Installed", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
 
 //    private void getDataFromFirebase() {
 //         List<UsersTripInfo> usersTripInfoList =  new ArrayList<>();

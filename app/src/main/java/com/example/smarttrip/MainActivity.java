@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView textView = findViewById(R.id.textViewWelcome);
 
         if (getIntent().hasExtra(ARG_NAME)) {
-            textView.setText(String.format("Welcome - %s", getIntent().getStringExtra(ARG_NAME)));
+            textView.setText(String.format("Welcome %s", getIntent().getStringExtra(ARG_NAME)));
         }
         if (getIntent().getStringExtra(ARG_NAME) != "Guest") {
             findViewById(R.id.buttonLogout).setOnClickListener(this);
