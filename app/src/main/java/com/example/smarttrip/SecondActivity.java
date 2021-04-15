@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -26,8 +28,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
@@ -38,7 +44,9 @@ import java.io.UnsupportedEncodingException;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -110,23 +118,26 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     String name = user.getDisplayName();
                     String email = user.getEmail();
                     Uri photoUrl = user.getPhotoUrl();
-                    String tripPath = photoUrl.getPath().toString();
-
-
+                    String tripPath = gMapsString;
+                    String tripTitle = getTripTitle();
                     // Check if user's email is verified
                     boolean emailVerified = user.isEmailVerified();
-
                     // The user's ID, unique to the Firebase project. Do NOT use this value to
                     // authenticate with your backend server, if you have one. Use
                     // FirebaseUser.getIdToken() instead.
                     String uid = user.getUid();
                     firebaseDatabase = FirebaseDatabase.getInstance();
-                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo");
-                    addDatatoFirebase(uid, name, email, tripPath);
+                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
+
+                    // getDataFromFirebase();
+
+                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid).push();
+                    SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+                    String now = ISO_8601_FORMAT.format(new Date());
+                    addDatatoFirebase(uid, name, email, tripTitle, tripPath, now);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
-
                     Snackbar.make(view, "SignIn to Save Trip", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
@@ -347,9 +358,14 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         return currAddressString;
     }
 
+    private String getTripTitle() {
+        String destinationAddress = destAddress.indexOf(",") > -1 ? destAddress.substring(0, destAddress.indexOf(",")) : destAddress;
+        return destinationAddress + " " + getString(R.string.tripDetails);
+    }
+
     private void setTripTitleText(Toolbar toolbar) {
         String destinationAddress = destAddress.indexOf(",") > -1 ? destAddress.substring(0, destAddress.indexOf(",")) : destAddress;
-        toolbar.setTitle(destinationAddress + " " + getString(R.string.tripDetails));
+        toolbar.setTitle(getTripTitle());
     }
 
     private void setTripTravelDetails(String distanceString, String durationString) {
@@ -405,14 +421,38 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 
     }
 
-    private void addDatatoFirebase(String uid, String name, String email, String tripPath) {
+    private void addDatatoFirebase(String uid, String name, String email,String tripTitle, String tripPath, String tripTimeStamp) {
         // below 3 lines of code is used to set
         // data in our object class.
         usersTripInfo.setUid(uid);
         usersTripInfo.setUserName(name);
         usersTripInfo.setUserEmail(email);
+        usersTripInfo.setUserTripTitle(tripTitle);
         usersTripInfo.setUserTripPath(tripPath);
+        usersTripInfo.setUserTripTimeStamp(tripTimeStamp);
         databaseReference.setValue(usersTripInfo);
-        //Toast.makeText(SecondActivity.this, "data added", Toast.LENGTH_SHORT).show();
     }
+
+//    private void getDataFromFirebase() {
+//         List<UsersTripInfo> usersTripInfoList =  new ArrayList<>();
+//
+//        databaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                usersTripInfoList.clear();
+//                System.out.println("Children Count: " + snapshot.getChildrenCount());
+//                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+//                    UsersTripInfo usersTripInfoRead =  postSnapshot.getValue(UsersTripInfo.class);
+//                    System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
+//                    usersTripInfoList.add(usersTripInfoRead);
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                System.out.println("The read failed: " + error.getMessage());
+//            }
+//        });
+//
+//    }
+
 }

@@ -6,6 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,6 +19,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.smarttrip.model.GoogleResponse;
+import com.example.smarttrip.model.UsersTripInfo;
+import com.example.smarttrip.utils.IOnGetDataListener;
 import com.example.smarttrip.utils.PlacesAutoComplete;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -27,8 +31,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseError;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,12 +52,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static AutoCompleteTextView autoCompleteTextViewDest = null;
     public static ChipGroup chipGroup = null;
     private static final int REQUEST_CODE = 0612;
-
-
     private static final String TAG = "MainActivity";
     private static final String ARG_NAME = "username";
     FirebaseAuth firebaseAuth;
     GoogleSignInClient googleSignInClient;
+
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
 
     public static void startActivity(Context context, String username, Uri photoUrl) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -162,6 +178,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 openStep2Activity();
+            }
+        });
+
+        Button tripHistoryButton = (Button) findViewById(R.id.tripHistory);
+        tripHistoryButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String uid = user.getUid();
+                    firebaseDatabase = FirebaseDatabase.getInstance();
+                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
+                    readData(databaseReference, new IOnGetDataListener() {
+                        @Override
+                        public void onSuccess(DataSnapshot dataSnapshot) {
+                            List<UsersTripInfo> usersTripInfoList = new ArrayList<>();
+
+                            usersTripInfoList.clear();
+                            System.out.println("Children Count: " + dataSnapshot.getChildrenCount());
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                UsersTripInfo usersTripInfoRead = postSnapshot.getValue(UsersTripInfo.class);
+                                System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
+                                usersTripInfoList.add(usersTripInfoRead);
+                            }
+                            Intent intent = new Intent(v.getContext(), TripHistoryActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("tripHistoryList", (Serializable) usersTripInfoList);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, REQUEST_CODE);
+                        }
+
+                        @Override
+                        public void onStart() {
+                            //when starting
+                            Log.d("ONSTART", "Started");
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            Log.d("onFailure", "Failed");
+                        }
+                    });
+
+                }else{
+                        Snackbar.make(v, "SignIn to Save Trip and Maintain History", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+
+                }
             }
         });
     }
@@ -290,6 +353,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.w(TAG, "Revoked Access");
                     }
                 });
+    }
+
+//    private void getDataFromFirebase() {
+//
+//        databaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                usersTripInfoList.clear();
+//                System.out.println("Children Count: " + snapshot.getChildrenCount());
+//                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+//                    UsersTripInfo usersTripInfoRead = postSnapshot.getValue(UsersTripInfo.class);
+//                    System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
+//                    usersTripInfoList.add(usersTripInfoRead);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                System.out.println("The read failed: " + error.getMessage());
+//            }
+//        });
+//
+//    }
+
+    public void readData(DatabaseReference ref, final IOnGetDataListener listener) {
+        listener.onStart();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onFailure();
+            }
+        });
+
     }
 
 }
