@@ -1,6 +1,7 @@
 package com.example.smarttrip;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -8,10 +9,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,6 +82,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     DatabaseReference databaseReference;
     UsersTripInfo usersTripInfo;
     public static String now;
+    public boolean collapsed = false;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -232,6 +239,22 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             }
         });
 
+        Button collapseButton = (Button) findViewById(R.id.collapseButton);
+        collapseButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (collapsed) {
+                    expand(findViewById(R.id.wayPointList));
+                    collapseButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_expand_less_24, 0);
+                    collapseButton.setText(getString(R.string.collapse));
+                } else {
+                    collapse(findViewById(R.id.wayPointList));
+                    collapseButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_expand_more_24, 0);
+                    collapseButton.setText(getString(R.string.expand));
+                }
+                collapsed = !collapsed;  //toggle collapsed
+            }
+        });
+
 
     }
 
@@ -271,12 +294,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     public ArrayList<String> getAddresses() {
         if (addressArrayList.size() > 0) {
             addressArrayList.clear();
-            addressArrayList.add(srcAddress);
-            addressArrayList.add(destAddress);
-        } else {
-            addressArrayList.add(srcAddress);
-            addressArrayList.add(destAddress);
         }
+        addressArrayList.add(srcAddress);
+        addressArrayList.add(destAddress);
         return addressArrayList;
     }
 
@@ -298,7 +318,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     }
 
     @Override
-    public void onDirectionsAPICallSuccess(JSONObject route) {
+    public void onDirectionsAPICallSuccess(JSONObject route, ArrayList<String> wayPointInitialOrder) {
         //if busy indicator is on, then close it
         try {
             JSONObject polyline = route.getJSONObject("overview_polyline");
@@ -311,6 +331,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             String strAddress;
             JSONObject obj = legs.getJSONObject(0);
             //changes for multiple points
+            ArrayList<String> wayPointsAddressesList = new ArrayList<>();
             for (int i = 0; i < legs.length(); i++) {
                 obj = legs.getJSONObject(i);
                 JSONObject distance = obj.getJSONObject("distance");
@@ -321,6 +342,13 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                 directionAddressString += encodeAddressString(strAddress) + "/";
 
             }
+            JSONArray wayPointsOrder = route.getJSONArray("waypoint_order");
+            wayPointsAddressesList.add(srcAddress);
+            for (int j = 0; j < wayPointsOrder.length(); j++) {
+                wayPointsAddressesList.add(wayPointInitialOrder.get(wayPointsOrder.getInt(j)));
+            }
+            wayPointsAddressesList.add(destAddress);
+            buildWayPointsList(wayPointsAddressesList);
             strAddress = obj.getString("end_address");
             directionAddressString += encodeAddressString(strAddress);
             gMapsString = "https://www.google.com/maps/dir" + directionAddressString;   //used for opening gmaps
@@ -394,7 +422,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         String sourceAddress = srcAddress.indexOf(",") > -1 ? srcAddress.substring(0, srcAddress.indexOf(",")) : srcAddress;
         SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
         now = ISO_8601_FORMAT.format(new Date());
-        return sourceAddress + " - " + destinationAddress + " " + getString(R.string.tripDetails)+ " as on " + now;
+        return sourceAddress + " - " + destinationAddress + " " + getString(R.string.tripDetails) + " as on " + now;
     }
 
     private void setTripTitleText(Toolbar toolbar) {
@@ -485,6 +513,103 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             Toast.makeText(this, "WhatsApp not Installed", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    private void buildWayPointsList(ArrayList<String> wayPointsAddressesList) {
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+//                R.layout.waypoint_item, wayPointsAddressesList);
+//        ListView listView = (ListView) findViewById(R.id.wayPointList);
+//        listView.setAdapter(adapter);
+        LinearLayout list = (LinearLayout) findViewById(R.id.wayPointList);
+        list.removeAllViews();
+        LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        for (int i = 0; i < wayPointsAddressesList.size(); i++) {
+            String address = wayPointsAddressesList.get(i);
+            View vi = inflater.inflate(R.layout.waypoint_item, null);
+            TextView textView = (TextView) vi.findViewById(R.id.address);
+            textView.setText(address);
+
+            if (i != 0 && i != wayPointsAddressesList.size() - 1) {
+//                Button deleteButton = (Button) vi.findViewById(R.id.deleteButton);
+//                deleteButton.setText("del");
+//                deleteButton.setVisibility(View.VISIBLE);
+                LinearLayout itemLayout = (LinearLayout) vi.findViewById(R.id.itemLayout);
+                Button deleteButton = new Button(this, null, R.style.DeleteButton);
+//            ImageButton deleteButton = new ImageButton(this);
+//            deleteButton.setImageResource(R.drawable.ic_baseline_remove_circle_outline_24);
+//            deleteButton.setBackground(null);
+                deleteButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_remove_circle_outline_24, 0, 0, 0);
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        deleteItem();
+                    }
+                });
+//            deleteButton.setWidth(20);
+//            View delView = inflater.inflate(R.layout.delete_button, null);
+//            itemLayout.addView(delView);
+                itemLayout.addView(deleteButton);
+            }
+            list.addView(vi);
+        }
+    }
+
+    private void deleteItem() {
+        Toast.makeText(this, "Way point deleted",
+                Toast.LENGTH_LONG).show();
+    }
+
+    public static void expand(final View view) {
+        int wrapContentSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int matchParentSpec = View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.EXACTLY);
+        view.measure(matchParentSpec, wrapContentSpec);
+        final int targetHeight = view.getMeasuredHeight();
+
+        // For older versions of android < 21
+        view.setVisibility(View.VISIBLE);
+        view.getLayoutParams().height = 1;
+        Animation animation = new Animation() {
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+
+            @Override
+            protected void applyTransformation(float insertTime, Transformation transformation) {
+                view.getLayoutParams().height = insertTime == 1
+                        ? ViewGroup.LayoutParams.WRAP_CONTENT
+                        : (int) (targetHeight * insertTime);
+                view.requestLayout();
+            }
+        };
+
+        // Expansion speed of 1dp/ms
+        animation.setDuration((int) (targetHeight / view.getContext().getResources().getDisplayMetrics().density));
+        view.startAnimation(animation);
+    }
+
+    public static void collapse(final View view) {
+        final int initialHeight = view.getMeasuredHeight();
+
+        Animation a = new Animation() {
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+
+            @Override
+            protected void applyTransformation(float insertTime, Transformation transformation) {
+                if (insertTime == 1) {
+                    view.setVisibility(View.GONE);
+                } else {
+                    view.getLayoutParams().height = initialHeight - (int) (initialHeight * insertTime);
+                    view.requestLayout();
+                }
+            }
+        };
+
+        // Collapse speed of 1dp/ms
+        a.setDuration((int) (initialHeight / view.getContext().getResources().getDisplayMetrics().density));
+        view.startAnimation(a);
     }
 
 

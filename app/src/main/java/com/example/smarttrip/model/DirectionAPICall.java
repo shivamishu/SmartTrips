@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +34,7 @@ public class DirectionAPICall {
     private String destString;
     private String mode;
     private HashSet<GoogleResponse> waypointsSet;
+    private ArrayList<String> wayPointInitialOrder = new ArrayList<>();
 
     public DirectionAPICall(IDirectionAPICall executor, String srcString, String destString, String mode, HashSet<GoogleResponse> waypointsSet) {
         this.executor = executor;
@@ -48,14 +50,15 @@ public class DirectionAPICall {
             String dest = "&destination=" + URLEncoder.encode(destString, "utf-8");
             String travelMode = "&mode=" + mode;
             String apiURL;
-            if(waypointsSet.size() > 0){
+            if (waypointsSet.size() > 0) {
                 String waypoints = "&waypoints=optimize:true";      //optimize:true|Los+Angeles,CA|Cupertino,CA
                 for (GoogleResponse point : waypointsSet) {
-                    waypoints = waypoints + "|" + URLEncoder.encode(""+point.getLat()+","+point.getLng(), "utf-8");
+                    wayPointInitialOrder.add(point.getName());
+                    waypoints = waypoints + "|" + URLEncoder.encode("" + point.getLat() + "," + point.getLng(), "utf-8");
                 }
                 URLEncoder.encode(destString, "utf-8");
                 apiURL = "https://maps.googleapis.com/maps/api/directions/json?key=" + apiKey + org + dest + travelMode + waypoints;
-            }else{
+            } else {
                 apiURL = "https://maps.googleapis.com/maps/api/directions/json?key=" + apiKey + org + dest + travelMode;
             }
             Log.d("Direction URL", apiURL);
@@ -101,7 +104,7 @@ public class DirectionAPICall {
                 JSONObject routes = routeArray.getJSONObject(0);
 //                JSONArray legs = routes.getJSONArray("legs");
 //                JSONObject rLeg = legs.getJSONObject(0);
-                executor.onDirectionsAPICallSuccess(routes);
+                executor.onDirectionsAPICallSuccess(routes, wayPointInitialOrder);
 //                JSONObject distance = rLeg.getJSONObject("distance");
 //                String distanceString = distance.getString("text");
 //                JSONObject duration = rLeg.getJSONObject(("duration"));

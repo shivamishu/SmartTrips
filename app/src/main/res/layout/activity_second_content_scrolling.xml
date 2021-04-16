@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -177,9 +175,40 @@
                 </LinearLayout>
 
             </LinearLayout>
-
-
         </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:id="@+id/wayPointListLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardView4"
+            app:layout_constraintVertical_bias="0.0">
+
+            <Button
+                android:id="@+id/collapseButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/collapse"
+                app:icon="@drawable/ic_baseline_expand_less_24" />
+
+            <LinearLayout
+                android:id="@+id/wayPointList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+
+        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/mapLayout"
@@ -190,7 +219,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView4"
+            app:layout_constraintTop_toBottomOf="@id/wayPointListLayout"
             app:layout_constraintVertical_bias="0.0">
 
             <FrameLayout
@@ -204,10 +233,10 @@
                 android:id="@+id/transparent_image"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:src="@color/trans_image"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:contentDescription="@string/todo" />
+                android:contentDescription="@string/todo"
+                android:src="@color/trans_image" />
 
             <Button
                 android:id="@+id/open_GMaps"
