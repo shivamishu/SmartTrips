@@ -75,6 +75,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     UsersTripInfo usersTripInfo;
+    public static String now;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -131,14 +132,11 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     // FirebaseUser.getIdToken() instead.
                     String uid = user.getUid();
                     firebaseDatabase = FirebaseDatabase.getInstance();
-                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
-
+                    //databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
                     // getDataFromFirebase();
-
                     databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid).push();
-                    SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
-                    String now = ISO_8601_FORMAT.format(new Date());
-                    addDatatoFirebase(uid, name, email, tripTitle, tripPath, now);
+
+                    addDatatoFirebase(tripTitle, tripPath, now);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
@@ -393,7 +391,10 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 
     private String getTripTitle() {
         String destinationAddress = destAddress.indexOf(",") > -1 ? destAddress.substring(0, destAddress.indexOf(",")) : destAddress;
-        return destinationAddress + " " + getString(R.string.tripDetails);
+        String sourceAddress = srcAddress.indexOf(",") > -1 ? srcAddress.substring(0, srcAddress.indexOf(",")) : srcAddress;
+        SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+        now = ISO_8601_FORMAT.format(new Date());
+        return sourceAddress + " - " + destinationAddress + " " + getString(R.string.tripDetails)+ " as on " + now;
     }
 
     private void setTripTitleText(Toolbar toolbar) {
@@ -454,12 +455,12 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 
     }
 
-    private void addDatatoFirebase(String uid, String name, String email, String tripTitle, String tripPath, String tripTimeStamp) {
+    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp) {
         // below 3 lines of code is used to set
         // data in our object class.
-        usersTripInfo.setUid(uid);
-        usersTripInfo.setUserName(name);
-        usersTripInfo.setUserEmail(email);
+        //usersTripInfo.setUid(uid);
+        //usersTripInfo.setUserName(name);
+        //usersTripInfo.setUserEmail(email);
         usersTripInfo.setUserTripTitle(tripTitle);
         usersTripInfo.setUserTripPath(tripPath);
         usersTripInfo.setUserTripTimeStamp(tripTimeStamp);

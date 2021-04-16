@@ -33,20 +33,26 @@ public class TripHistoryActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         ArrayList<UsersTripInfo> userTripHistoryList = (ArrayList<UsersTripInfo>) bundle.getSerializable("tripHistoryList");
 
-//        List<String> trip_history_array = new ArrayList<String>();
-//        for (int i = 0; i < userTripHistoryList.size(); i++) {
-//            UsersTripInfo tripPaths = userTripHistoryList.get(i);
-//            trip_history_array.add(tripPaths.getUserTripPath());
-//        }
-        ArrayAdapter<UsersTripInfo> adapter = new ArrayAdapter<UsersTripInfo>(this,
-                R.layout.trip_history_view, userTripHistoryList);
+        List<String> trip_title_array = new ArrayList<String>();
+        for (int i = 0; i < userTripHistoryList.size(); i++) {
+            UsersTripInfo tripTitle = userTripHistoryList.get(i);
+            trip_title_array.add(tripTitle.getUserTripTitle());
+        }
+        List<String> trip_link_array = new ArrayList<String>();
+        for (int i = 0; i < userTripHistoryList.size(); i++) {
+            UsersTripInfo tripLinks = userTripHistoryList.get(i);
+            trip_link_array.add(tripLinks.getUserTripPath());
+        }
+
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.trip_history_view, trip_title_array);
         ListView listView = (ListView) findViewById(R.id.tripHistory_list);
         listView.setAdapter(adapter);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                UsersTripInfo selectedItem = (UsersTripInfo) parent.getItemAtPosition(position);
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(selectedItem.getUserTripPath()));
+                Uri uri = Uri.parse(trip_link_array.get(position));
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
             }
         });
