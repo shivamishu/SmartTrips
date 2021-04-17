@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/trip_history"
+        android:title="@string/tripHistory"
+        android:visible="true">
+    </item>
+    <item
+        android:id="@+id/logout"
+        android:title="Logout"
+        android:visible="true"/>
+</menu>

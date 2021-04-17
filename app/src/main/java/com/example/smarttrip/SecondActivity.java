@@ -3,6 +3,11 @@ package com.example.smarttrip;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -10,6 +15,9 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
@@ -32,6 +41,7 @@ import com.example.smarttrip.model.DirectionAPICall;
 import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.UsersTripInfo;
 import com.example.smarttrip.utils.IDirectionAPICall;
+import com.example.smarttrip.utils.IOnGetDataListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -50,15 +60,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 //import com.squareup.picasso.Picasso;
@@ -110,10 +123,22 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         // call the app bar's setDisplayHomeAsUpEnabled() method.
         CollapsingToolbarLayout expandedToolbar = findViewById(R.id.toolbar_layout);
         expandedToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBar);
-        setSupportActionBar(findViewById(R.id.toolbar)); //toolbar in activity_detail_scrolling.xml
-        toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.collapsible_toolbar);
+//        setSupportActionBar(findViewById(R.id.toolbar));
         setTripTitleText(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar2 = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar2);
+        if (getSupportActionBar() != null) {
+            Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_launcher_round);
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            Drawable newdrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setHomeAsUpIndicator(newdrawable);
+        }
+        toolbar2.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        toolbar2.inflateMenu(R.menu.menu_main);
+
         //Initialize fragment
         Fragment mapsFragment = new MapFragment();
         //open fragment
@@ -131,7 +156,12 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     String email = user.getEmail();
                     Uri photoUrl = user.getPhotoUrl();
                     String tripPath = gMapsString;
-                    String tripTitle = getTripTitle();
+                    //String tripTitle = getTripTitle();
+                    String sourceAddress = srcAddress.indexOf(",") > -1 ? srcAddress.substring(0, srcAddress.indexOf(",")) : srcAddress;
+                    DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, Locale.US);
+                    String formattedDate = df.format(new Date());
+                    String tripTitle = sourceAddress + " - " + getTripTitle() + " as on " + formattedDate;
+                    // Check if user's email is verified
                     // Check if user's email is verified
                     boolean emailVerified = user.isEmailVerified();
                     // The user's ID, unique to the Firebase project. Do NOT use this value to
@@ -143,7 +173,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     // getDataFromFirebase();
                     databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid).push();
 
-                    addDatatoFirebase(tripTitle, tripPath, now);
+                    addDatatoFirebase(tripTitle, tripPath, formattedDate);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
@@ -419,10 +449,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 
     private String getTripTitle() {
         String destinationAddress = destAddress.indexOf(",") > -1 ? destAddress.substring(0, destAddress.indexOf(",")) : destAddress;
-        String sourceAddress = srcAddress.indexOf(",") > -1 ? srcAddress.substring(0, srcAddress.indexOf(",")) : srcAddress;
-        SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
-        now = ISO_8601_FORMAT.format(new Date());
-        return sourceAddress + " - " + destinationAddress + " " + getString(R.string.tripDetails) + " as on " + now;
+        //        SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss");
+//        now = ISO_8601_FORMAT.format(new Date());
+        return destinationAddress + " " + getString(R.string.tripDetails);
     }
 
     private void setTripTitleText(Toolbar toolbar) {
@@ -613,26 +642,95 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     }
 
 
-//    private void getDataFromFirebase() {
-//         List<UsersTripInfo> usersTripInfoList =  new ArrayList<>();
-//
-//        databaseReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                usersTripInfoList.clear();
-//                System.out.println("Children Count: " + snapshot.getChildrenCount());
-//                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-//                    UsersTripInfo usersTripInfoRead =  postSnapshot.getValue(UsersTripInfo.class);
-//                    System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
-//                    usersTripInfoList.add(usersTripInfoRead);
-//                }
-//            }
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                System.out.println("The read failed: " + error.getMessage());
-//            }
-//        });
-//
-//    }
+    public void readData(DatabaseReference ref, final IOnGetDataListener listener) {
+        listener.onStart();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onFailure();
+            }
+        });
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            MenuItem tripHistoryItem = menu.findItem(R.id.trip_history);
+            tripHistoryItem.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                logout();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivityForResult(intent, REQUEST_CODE);
+                finish();
+                return true;
+            case R.id.trip_history:
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String uid = user.getUid();
+                    firebaseDatabase = FirebaseDatabase.getInstance();
+                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
+                    readData(databaseReference, new IOnGetDataListener() {
+                        @Override
+                        public void onSuccess(DataSnapshot dataSnapshot) {
+                            List<UsersTripInfo> usersTripInfoList = new ArrayList<>();
+                            usersTripInfoList.clear();
+                            System.out.println("Children Count: " + dataSnapshot.getChildrenCount());
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                UsersTripInfo usersTripInfoRead = postSnapshot.getValue(UsersTripInfo.class);
+                                System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
+                                usersTripInfoList.add(usersTripInfoRead);
+                            }
+
+                            Intent intent = new Intent(SecondActivity.this, TripHistoryActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("tripHistoryList", (Serializable) usersTripInfoList);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, 128);
+                        }
+
+                        @Override
+                        public void onStart() {
+                            //when starting
+                            Log.d("ONSTART", "Started");
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            Log.d("onFailure", "Failed");
+                        }
+                    });
+
+                }
+                //onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(SecondActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
 
 }

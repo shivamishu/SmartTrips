@@ -2,9 +2,17 @@ package com.example.smarttrip;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -13,15 +21,24 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.NearBySearchAPICall;
 import com.example.smarttrip.utils.IDistanceMatrixAPICall;
+import com.example.smarttrip.utils.IOnGetDataListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,18 +49,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Stack;
 
 public class SearchAlongActivity extends AppCompatActivity implements IDistanceMatrixAPICall {
     public static final String apiKey = BuildConfig.MAPS_API_KEY;
     ArrayList<GoogleResponse> data = new ArrayList<>();
     public HashSet<GoogleResponse> selectedList = new HashSet<>();
     public RecyclerView recyclerCard;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    public static Stack<Intent> parents = new Stack<Intent>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_along_search);
-        TextView titleAlong = (TextView) findViewById(R.id.along_title);
+        parents.push(getIntent());
+        //TextView titleAlong = (TextView) findViewById(R.id.along_title);
         Bundle bundle = getIntent().getExtras();
         selectedList = (HashSet<GoogleResponse>) getIntent().getSerializableExtra("selectedList");
         String filterType = bundle.getString("filterType");
@@ -65,7 +87,32 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
                 title = "places";
         }
         title = String.format(getString(R.string.add_places_along_the_route2), title);
-        titleAlong.setText(title);
+        //titleAlong.setText(title);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if(getSupportActionBar()!=null){
+            Drawable drawable= ContextCompat.getDrawable(this, R.drawable.ic_launcher_round);
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            Drawable newdrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+            //newdrawable.setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(newdrawable);
+            toolbar.setNavigationIcon(newdrawable);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent parentActivityIntent = new Intent(v.getContext(), parents.pop().getClass());
+                    parentActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startService(parentActivityIntent);
+                    finish();
+                }
+            });
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+            mTitle.setText(title);
+        }
+        toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        toolbar.inflateMenu(R.menu.menu_main);
         String mode = bundle.getString("mode");
         String srcAddress = bundle.getString("srcAddress");
         List<LatLng> polyPoints = bundle.getParcelableArrayList("waypointlist");
@@ -273,6 +320,53 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
 //        recyclerCard.getAdapter().notifyDataSetChanged();
         recyclerCard.getAdapter().notifyItemInserted(size);
 
+    }
+    public void readData(DatabaseReference ref, final IOnGetDataListener listener) {
+        listener.onStart();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onFailure();
+            }
+        });
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        MenuItem tripHistoryItem = menu.findItem(R.id.trip_history);
+        tripHistoryItem.setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                logout();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivityForResult(intent, 129);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void logout () {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(SearchAlongActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
 }

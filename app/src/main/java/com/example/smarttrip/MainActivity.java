@@ -2,12 +2,17 @@ package com.example.smarttrip;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -18,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.UsersTripInfo;
@@ -45,8 +51,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Stack;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
     //    public Map<String, String> addressMap = new HashMap<>();
     public static AutoCompleteTextView autoCompleteTextViewSrc = null;
     public static AutoCompleteTextView autoCompleteTextViewDest = null;
@@ -59,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
+    public static Stack<Intent> parents = new Stack<Intent>();
+
 
     public static void startActivity(Context context, String username, Uri photoUrl) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -78,7 +87,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        parents.push(getIntent());
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        }
+        toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        toolbar.inflateMenu(R.menu.menu_main);
+
+//        getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        //getSupportActionBar().setLogo(R.drawable.ic_launcher_round);
+        //getSupportActionBar().setDisplayUseLogoEnabled(true);
+
+
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //ImageView ivUserImage = (ImageView) findViewById(R.id.ivUserImage);
 
@@ -90,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             textView.setText(String.format("Welcome %s", getIntent().getStringExtra(ARG_NAME)));
         }
         if (getIntent().getStringExtra(ARG_NAME) != "Guest") {
-            findViewById(R.id.buttonLogout).setOnClickListener(this);
             googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN);
             firebaseAuth = FirebaseAuth.getInstance();
         }
@@ -178,53 +206,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 openStep2Activity();
-            }
-        });
-
-        Button tripHistoryButton = (Button) findViewById(R.id.tripHistory);
-        tripHistoryButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    String uid = user.getUid();
-                    firebaseDatabase = FirebaseDatabase.getInstance();
-                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
-                    readData(databaseReference, new IOnGetDataListener() {
-                        @Override
-                        public void onSuccess(DataSnapshot dataSnapshot) {
-                            List<UsersTripInfo> usersTripInfoList = new ArrayList<>();
-
-                            usersTripInfoList.clear();
-                            System.out.println("Children Count: " + dataSnapshot.getChildrenCount());
-                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                UsersTripInfo usersTripInfoRead = postSnapshot.getValue(UsersTripInfo.class);
-                                System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
-                                usersTripInfoList.add(usersTripInfoRead);
-                            }
-                            Intent intent = new Intent(v.getContext(), TripHistoryActivity.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable("tripHistoryList", (Serializable) usersTripInfoList);
-                            intent.putExtras(bundle);
-                            startActivityForResult(intent, REQUEST_CODE);
-                        }
-
-                        @Override
-                        public void onStart() {
-                            //when starting
-                            Log.d("ONSTART", "Started");
-                        }
-
-                        @Override
-                        public void onFailure() {
-                            Log.d("onFailure", "Failed");
-                        }
-                    });
-
-                }else{
-                        Snackbar.make(v, "SignIn to Save Trip and Maintain History", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-
-                }
             }
         });
     }
@@ -316,45 +297,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.buttonLogout:
-                signOut();
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivityForResult(intent, REQUEST_CODE);
-                break;
-        }
-    }
-
-    private void signOut() {
-        // Firebase sign out
-        firebaseAuth.signOut();
-        // Google sign out
-        googleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // Google Sign In failed, update UI appropriately
-                        Log.w(TAG, "Signed out of google");
-                    }
-                });
-    }
-
-    private void revokeAccess() {
-        // Firebase sign out
-        firebaseAuth.signOut();
-        // Google revoke access
-        googleSignInClient.revokeAccess().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // Google Sign In failed, update UI appropriately
-                        Log.w(TAG, "Revoked Access");
-                    }
-                });
-    }
-
 //    private void getDataFromFirebase() {
 //
 //        databaseReference.addValueEventListener(new ValueEventListener() {
@@ -391,6 +333,79 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            MenuItem tripHistoryItem = menu.findItem(R.id.trip_history);
+            tripHistoryItem.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                logout();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivityForResult(intent, REQUEST_CODE);
+                finish();
+                return true;
+            case R.id.trip_history:
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String uid = user.getUid();
+                    firebaseDatabase = FirebaseDatabase.getInstance();
+                    databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
+                    readData(databaseReference, new IOnGetDataListener() {
+                        @Override
+                        public void onSuccess(DataSnapshot dataSnapshot) {
+                            List<UsersTripInfo> usersTripInfoList = new ArrayList<>();
+                            usersTripInfoList.clear();
+                            System.out.println("Children Count: " + dataSnapshot.getChildrenCount());
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                UsersTripInfo usersTripInfoRead = postSnapshot.getValue(UsersTripInfo.class);
+                                System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
+                                usersTripInfoList.add(usersTripInfoRead);
+                            }
+
+                            Intent intent = new Intent(MainActivity.this, TripHistoryActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("tripHistoryList", (Serializable) usersTripInfoList);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, 127);
+                        }
+
+                        @Override
+                        public void onStart() {
+                            //when starting
+                            Log.d("ONSTART", "Started");
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            Log.d("onFailure", "Failed");
+                        }
+                    });
+
+                }
+                //onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void logout () {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
 }

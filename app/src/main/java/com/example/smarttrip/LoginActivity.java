@@ -1,15 +1,21 @@
 package com.example.smarttrip;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -35,6 +41,18 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if(getSupportActionBar()!=null){
+            Drawable drawable= ContextCompat.getDrawable(this, R.drawable.ic_launcher_roundf);
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            Drawable newdrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(newdrawable);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        }
+        toolbar.inflateMenu(R.menu.menu_main);
 
         Button guestButton = (Button) findViewById(R.id.continue_with_out_signin_button);
         guestButton.setOnClickListener(new View.OnClickListener() {
