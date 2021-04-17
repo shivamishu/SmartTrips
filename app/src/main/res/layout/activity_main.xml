@@ -182,7 +182,8 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:padding="10dp"
-                app:justifyContent="space_between"
+                app:alignItems="flex_end"
+                app:justifyContent="flex_end"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.107"
@@ -190,14 +191,14 @@
                 app:layout_constraintTop_toBottomOf="@+id/cardView"
                 app:layout_constraintVertical_bias="0.0">
 
-<!--                <com.google.android.material.switchmaterial.SwitchMaterial-->
-<!--                    android:id="@+id/roundTrip"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:checked="false"-->
-<!--                    android:text="@string/round_trip"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:textStyle="bold" />-->
+                <!--                <com.google.android.material.switchmaterial.SwitchMaterial-->
+                <!--                    android:id="@+id/roundTrip"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:checked="false"-->
+                <!--                    android:text="@string/round_trip"-->
+                <!--                    android:textSize="18sp"-->
+                <!--                    android:textStyle="bold" />-->
 
                 <Button
                     android:id="@+id/button"
@@ -207,36 +208,36 @@
                     android:width="120dp"
                     android:baselineAligned="false"
                     android:elevation="1dp"
-                    android:text="@string/next"/>
-<!--                <Button-->
-<!--                android:id="@+id/buttonLogout"-->
-<!--                style="@style/Widget.AppCompat.Button.Colored"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:width="120dp"-->
-<!--                android:baselineAligned="false"-->
-<!--                android:elevation="1dp"-->
-<!--                android:text="@string/logout"-->
-<!--                android:textStyle="bold" />-->
-<!--                <Button-->
-<!--                    android:id="@+id/tripHistory"-->
-<!--                    style="@style/Widget.AppCompat.Button.Colored"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:width="120dp"-->
-<!--                    android:baselineAligned="false"-->
-<!--                    android:elevation="1dp"-->
-<!--                    android:text="@string/tripHistory"-->
-<!--                    android:textStyle="bold" />-->
+                    android:text="@string/next" />
+                <!--                <Button-->
+                <!--                android:id="@+id/buttonLogout"-->
+                <!--                style="@style/Widget.AppCompat.Button.Colored"-->
+                <!--                android:layout_width="wrap_content"-->
+                <!--                android:layout_height="wrap_content"-->
+                <!--                android:width="120dp"-->
+                <!--                android:baselineAligned="false"-->
+                <!--                android:elevation="1dp"-->
+                <!--                android:text="@string/logout"-->
+                <!--                android:textStyle="bold" />-->
+                <!--                <Button-->
+                <!--                    android:id="@+id/tripHistory"-->
+                <!--                    style="@style/Widget.AppCompat.Button.Colored"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:width="120dp"-->
+                <!--                    android:baselineAligned="false"-->
+                <!--                    android:elevation="1dp"-->
+                <!--                    android:text="@string/tripHistory"-->
+                <!--                    android:textStyle="bold" />-->
 
 
-<!--                <ImageView-->
-<!--                    android:id="@+id/ivUserImage"-->
-<!--                    android:contentDescription="image"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:adjustViewBounds="true"-->
-<!--                    />-->
+                <!--                <ImageView-->
+                <!--                    android:id="@+id/ivUserImage"-->
+                <!--                    android:contentDescription="image"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:adjustViewBounds="true"-->
+                <!--                    />-->
 
 
             </com.google.android.flexbox.FlexboxLayout>

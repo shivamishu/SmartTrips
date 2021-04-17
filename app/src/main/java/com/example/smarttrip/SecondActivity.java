@@ -556,36 +556,46 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             String address = wayPointsAddressesList.get(i);
             View vi = inflater.inflate(R.layout.waypoint_item, null);
             TextView textView = (TextView) vi.findViewById(R.id.address);
-            textView.setText(address);
-
+            LinearLayout itemLayout = (LinearLayout) vi.findViewById(R.id.itemLayout);
+            Button deleteButton = new Button(this, null, R.style.DeleteButton);
             if (i != 0 && i != wayPointsAddressesList.size() - 1) {
-//                Button deleteButton = (Button) vi.findViewById(R.id.deleteButton);
-//                deleteButton.setText("del");
-//                deleteButton.setVisibility(View.VISIBLE);
-                LinearLayout itemLayout = (LinearLayout) vi.findViewById(R.id.itemLayout);
-                Button deleteButton = new Button(this, null, R.style.DeleteButton);
-//            ImageButton deleteButton = new ImageButton(this);
-//            deleteButton.setImageResource(R.drawable.ic_baseline_remove_circle_outline_24);
-//            deleteButton.setBackground(null);
-                deleteButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_remove_circle_outline_24, 0, 0, 0);
+                textView.setText((i) + ": " + address);
+                deleteButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_wrong_location_24, 0, 0, 0);
+                deleteButton.setTag(address);
                 deleteButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        deleteItem();
+                        deleteItem(v);
                     }
                 });
-//            deleteButton.setWidth(20);
-//            View delView = inflater.inflate(R.layout.delete_button, null);
-//            itemLayout.addView(delView);
-                itemLayout.addView(deleteButton);
+            }else{
+                textView.setText(address);
+                int icon = i == 0 ? R.drawable.ic_start : R.drawable.ic_finish;
+//                textView.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
+                deleteButton.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
             }
+            itemLayout.addView(deleteButton);
             list.addView(vi);
         }
     }
 
-    private void deleteItem() {
-        Toast.makeText(this, "Way point deleted",
-                Toast.LENGTH_LONG).show();
+    private void deleteItem(View v) {
+        String strTag = "";
+        if (v.getTag() instanceof String) {
+            strTag = (String) v.getTag();
+
+            for (GoogleResponse point : wayPointListSet) {
+                if (point.getName() == strTag) {
+                    wayPointListSet.remove(point);
+                    getRoute(srcAddress, destAddress, mode, wayPointListSet);
+                    Toast.makeText(this, "Way point deleted",
+                            Toast.LENGTH_LONG).show();
+                    break;
+                }
+            }
+        }
     }
+
+
 
     public static void expand(final View view) {
         int wrapContentSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);

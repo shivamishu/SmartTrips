@@ -39,7 +39,7 @@
     <string name="waypointsupdated">Waypoints updated successfully</string>
     <string name="logout">logout</string>
     <string name="revoke_access">revoke access</string>
-    <string name="welcome">welcome</string>
+    <string name="welcome">Welcome</string>
     <string name="signinWithGoogle">Sign In With Google</string>
     <string name="continueWithoutSignin">Continue As Guest</string>
     <string name="or">OR</string>
