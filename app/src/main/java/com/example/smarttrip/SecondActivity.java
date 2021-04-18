@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -95,7 +96,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     DatabaseReference databaseReference;
     UsersTripInfo usersTripInfo;
     public static String now;
-    public boolean collapsed = false;
+    public boolean expanded = true;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -254,14 +255,14 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         });
 
 
-        Button openDirectionButton = (Button) findViewById(R.id.open_GMaps);
+        ImageButton openDirectionButton = (ImageButton) findViewById(R.id.open_GMaps);
         openDirectionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 openDirectionsinGMaps(gMapsString);
             }
         });
 
-        Button shareOnWhatsAppButton = (Button) findViewById(R.id.whatsApp_nav);
+        ImageButton shareOnWhatsAppButton = (ImageButton) findViewById(R.id.whatsApp_nav);
         shareOnWhatsAppButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,18 +271,20 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         });
 
         Button collapseButton = (Button) findViewById(R.id.collapseButton);
+        collapseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_expand_less_24, 0, 0, 0);
         collapseButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (collapsed) {
-                    expand(findViewById(R.id.wayPointList));
-                    collapseButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_expand_less_24, 0);
-                    collapseButton.setText(getString(R.string.collapse));
-                } else {
+                if (expanded) {
                     collapse(findViewById(R.id.wayPointList));
-                    collapseButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_expand_more_24, 0);
+                    collapseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_expand_more_24, 0, 0, 0);
                     collapseButton.setText(getString(R.string.expand));
+                } else {
+                    expand(findViewById(R.id.wayPointList));
+                    collapseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_expand_less_24, 0, 0, 0);
+                    collapseButton.setText(getString(R.string.collapse));
+
                 }
-                collapsed = !collapsed;  //toggle collapsed
+                expanded = !expanded;  //toggle expanded
             }
         });
 
@@ -559,7 +562,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             LinearLayout itemLayout = (LinearLayout) vi.findViewById(R.id.itemLayout);
             Button deleteButton = new Button(this, null, R.style.DeleteButton);
             if (i != 0 && i != wayPointsAddressesList.size() - 1) {
-                textView.setText((i) + ": " + address);
+                textView.setText((i) + ":  " + address);
                 deleteButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_wrong_location_24, 0, 0, 0);
                 deleteButton.setTag(address);
                 deleteButton.setOnClickListener(new View.OnClickListener() {

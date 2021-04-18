@@ -196,8 +196,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/collapse"
-                app:icon="@drawable/ic_baseline_expand_less_24" />
+                android:text="@string/collapse" />
 
             <LinearLayout
                 android:id="@+id/wayPointList"
@@ -238,7 +237,7 @@
                 android:contentDescription="@string/todo"
                 android:src="@color/trans_image" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/open_GMaps"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
                 android:layout_width="wrap_content"
@@ -249,9 +248,9 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
-                app:icon="@drawable/ic_baseline_assistant_direction_24" />
+                android:src="@drawable/ic_gmaps" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/whatsApp_nav"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
                 android:layout_width="wrap_content"
@@ -262,7 +261,7 @@
                 android:layout_marginTop="50dp"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
-                app:icon="@drawable/ic_baseline_share_24" />
+                android:src="@drawable/ic_whatsapp" />
 
         </RelativeLayout>
 
