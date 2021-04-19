@@ -26,7 +26,7 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:background="@drawable/bg"
+        android:background="@drawable/bg1"
         android:contentDescription="@string/tripDetails"
         android:fitsSystemWindows="true"
         android:theme="@style/Theme.SmartTrip.AppBarOverlay">
