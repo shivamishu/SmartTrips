@@ -56,15 +56,15 @@ public class TripHistoryActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
             toolbar.setNavigationIcon(newdrawable);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent parentActivityIntent = new Intent(v.getContext(), parents.pop().getClass());
-                    parentActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startService(parentActivityIntent);
-                    finish();
-                }
-            });
+//            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Intent parentActivityIntent = new Intent(v.getContext(), parents.pop().getClass());
+//                    parentActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startService(parentActivityIntent);
+//                    finish();
+//                }
+//            });
         }
         toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         toolbar.inflateMenu(R.menu.menu_main);
@@ -135,6 +135,7 @@ public class TripHistoryActivity extends AppCompatActivity {
                 finish();
                 return true;
             case android.R.id.home:
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

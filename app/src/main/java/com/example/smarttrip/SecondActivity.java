@@ -73,6 +73,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 //import com.squareup.picasso.Picasso;
@@ -97,11 +98,14 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     UsersTripInfo usersTripInfo;
     public static String now;
     public boolean expanded = true;
+    public static Stack<Intent> parents = new Stack<Intent>();
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        parents.push(getIntent());
         setContentView(R.layout.activity_second);
         setSupportActionBar(findViewById(R.id.toolbar));
 //        tripTitleTextView = (TextView)findViewById(R.id.tripTitle);
@@ -136,6 +140,15 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setHomeAsUpIndicator(newdrawable);
+//            toolbar2.setNavigationOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Intent parentActivityIntent = new Intent(v.getContext(), parents.pop().getClass());
+//                    parentActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startService(parentActivityIntent);
+//                    finish();
+//                }
+//            });
         }
         toolbar2.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         toolbar2.inflateMenu(R.menu.menu_main);
@@ -686,6 +699,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
             case R.id.logout:
                 logout();
                 Intent intent = new Intent(this, LoginActivity.class);

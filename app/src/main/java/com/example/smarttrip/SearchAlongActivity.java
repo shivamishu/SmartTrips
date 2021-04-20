@@ -98,15 +98,15 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(newdrawable);
             toolbar.setNavigationIcon(newdrawable);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent parentActivityIntent = new Intent(v.getContext(), parents.pop().getClass());
-                    parentActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startService(parentActivityIntent);
-                    finish();
-                }
-            });
+//            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Intent parentActivityIntent = new Intent(v.getContext(), parents.pop().getClass());
+//                    parentActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startService(parentActivityIntent);
+//                    finish();
+//                }
+//            });
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
             mTitle.setText(title);
@@ -355,7 +355,9 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
                 startActivityForResult(intent, 129);
                 finish();
                 return true;
-
+            case android.R.id.home:
+                finish();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
