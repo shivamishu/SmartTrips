@@ -53,6 +53,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
@@ -69,10 +70,12 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
@@ -99,6 +102,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     public static String now;
     public boolean expanded = true;
     public static Stack<Intent> parents = new Stack<Intent>();
+
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -186,8 +190,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     //databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid);
                     // getDataFromFirebase();
                     databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid).push();
-
-                    addDatatoFirebase(tripTitle, tripPath, formattedDate);
+                    List<GoogleResponse> mainList = new ArrayList<>();
+                    mainList.addAll(wayPointListSet);
+                    addDatatoFirebase(tripTitle, tripPath, formattedDate,mainList);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
@@ -527,8 +532,8 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         }
 
     }
-
-    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp) {
+    @Exclude
+    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp,List<GoogleResponse> harvestList) {
         // below 3 lines of code is used to set
         // data in our object class.
         //usersTripInfo.setUid(uid);
@@ -537,6 +542,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         usersTripInfo.setUserTripTitle(tripTitle);
         usersTripInfo.setUserTripPath(tripPath);
         usersTripInfo.setUserTripTimeStamp(tripTimeStamp);
+        usersTripInfo.setHarvestList(harvestList);
         databaseReference.setValue(usersTripInfo);
     }
 
@@ -722,10 +728,8 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                             System.out.println("Children Count: " + dataSnapshot.getChildrenCount());
                             for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                 UsersTripInfo usersTripInfoRead = postSnapshot.getValue(UsersTripInfo.class);
-                                System.out.println("The message from database: " + usersTripInfoRead.getUserTripPath());
                                 usersTripInfoList.add(usersTripInfoRead);
                             }
-
                             Intent intent = new Intent(SecondActivity.this, TripHistoryActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("tripHistoryList", (Serializable) usersTripInfoList);

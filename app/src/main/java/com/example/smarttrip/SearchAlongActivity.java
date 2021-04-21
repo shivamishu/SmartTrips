@@ -60,6 +60,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
     DatabaseReference databaseReference;
     public static Stack<Intent> parents = new Stack<Intent>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

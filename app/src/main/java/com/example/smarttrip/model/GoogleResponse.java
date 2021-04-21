@@ -1,7 +1,8 @@
 package com.example.smarttrip.model;
 
-import java.io.Serializable;
+import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
 public class GoogleResponse implements Serializable {
     private double lat;
     private double lng;

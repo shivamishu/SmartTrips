@@ -1,7 +1,11 @@
 package com.example.smarttrip.model;
 
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
 
 public class UsersTripInfo implements Serializable {
 //    private String uid;
@@ -10,6 +14,8 @@ public class UsersTripInfo implements Serializable {
     private String userTripPath;
     private String userTripTitle;
     private String userTripTimeStamp;
+    private List<GoogleResponse> harvestList;
+
 
 
 //    public String getUid() {
@@ -60,12 +66,21 @@ public class UsersTripInfo implements Serializable {
         this.userTripTitle = userTripTitle;
     }
 
+    public List<GoogleResponse> getHarvestList() {
+        return harvestList;
+    }
+
+    public void setHarvestList(List<GoogleResponse> harvestList) {
+        this.harvestList = harvestList;
+    }
+
     @Override
     public String toString() {
         return "UsersTripInfo{" +
                 "userTripPath='" + userTripPath + '\'' +
                 ", userTripTitle='" + userTripTitle + '\'' +
                 ", userTripTimeStamp='" + userTripTimeStamp + '\'' +
+                ", harvestList=" + harvestList +
                 '}';
     }
 }
