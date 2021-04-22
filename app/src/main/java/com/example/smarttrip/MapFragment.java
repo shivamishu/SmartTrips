@@ -13,6 +13,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -62,8 +64,9 @@ public class MapFragment extends Fragment {
                     markerOptions.position(srcLoc);
                     markerOptions.title(src);
                     googleMap.clear();
+//                    BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.start);
+//                    markerOptions.icon(icon);
                     googleMap.addMarker(markerOptions);
-
                     //add waypoint markers
                     if (waypointsSet.size() > 0) {
                         for (GoogleResponse waypoint : waypointsSet) {
@@ -81,6 +84,8 @@ public class MapFragment extends Fragment {
                     //set dest marker
                     markerOptions.position(destLoc);
                     markerOptions.title(dest);
+//                    icon = BitmapDescriptorFactory.fromResource(R.drawable.finish);
+//                    markerOptions.icon(icon);
                     googleMap.addMarker(markerOptions);
 
                     //animate camera

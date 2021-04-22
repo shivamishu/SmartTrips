@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -45,11 +46,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
+import java.util.TimeZone;
 
 public class SearchAlongActivity extends AppCompatActivity implements IDistanceMatrixAPICall {
     public static final String apiKey = BuildConfig.MAPS_API_KEY;
@@ -59,7 +64,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     public static Stack<Intent> parents = new Stack<Intent>();
-
+    public String filterType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +74,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         //TextView titleAlong = (TextView) findViewById(R.id.along_title);
         Bundle bundle = getIntent().getExtras();
         selectedList = (HashSet<GoogleResponse>) getIntent().getSerializableExtra("selectedList");
-        String filterType = bundle.getString("filterType");
+        filterType = bundle.getString("filterType");
         String title;
         switch (filterType) {
             case "tourist_attraction":
@@ -82,7 +87,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
                 title = "gas stations";
                 break;
             case "ev charger":
-                title = "ev chargers";
+                title = "EV chargers";
                 break;
             default:
                 title = "places";
@@ -91,8 +96,8 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         //titleAlong.setText(title);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(getSupportActionBar()!=null){
-            Drawable drawable= ContextCompat.getDrawable(this, R.drawable.ic_launcher_round);
+        if (getSupportActionBar() != null) {
+            Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_launcher_round);
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             Drawable newdrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
             //newdrawable.setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);
@@ -164,7 +169,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
                     String locationCords = "&location=" + URLEncoder.encode(String.valueOf(cords.latitude), "utf-8") + "," + URLEncoder.encode(String.valueOf(cords.longitude), "utf-8");
                     String wayptRadius = "&radius=" + URLEncoder.encode(String.valueOf(radius), "utf-8");
                     String searchType = "&type=" + filterType;
-                    searchType = filterType == "ev charger" ? "&keyword=ev charger" : searchType;
+                    searchType = filterType.equals("ev charger") ? "&keyword=ev charger" : searchType;
                     apiURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=" + apiKey + locationCords + wayptRadius + searchType;
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -213,6 +218,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         public View item;
         public TextView openNowView;
         public RatingBar ratingBarView;
+        public ImageView imageView;
 
         public MainCardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -223,6 +229,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             item = itemView;
             openNowView = itemView.findViewById(R.id.opening);
             ratingBarView = itemView.findViewById(R.id.ratingBar);
+            imageView = itemView.findViewById(R.id.imageView);
         }
 
         @Override
@@ -257,10 +264,36 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         @Override
         public void onBindViewHolder(@NonNull MainCardViewHolder holder, int position) {
             GoogleResponse item = dataList.get(position);
+            Calendar cal = Calendar.getInstance();
+            TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+            String durationValue = item.getDurationValue();
+            cal.add(Calendar.SECOND, Integer.parseInt(durationValue));
+            DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            dateFormat.setTimeZone(tz);
+            String time = dateFormat.format(cal.getTime());
+            holder.timeView.setText("ETA: " + time);
             holder.titleView.setText(item.getName());
-            holder.timeView.setText(item.getDurationText());
+//            holder.timeView.setText(item.getDurationText());
             holder.distanceView.setText(item.getDistanceText());
             holder.openNowView.setText(item.getOpenNow());
+            int icon;
+            switch (filterType) {
+                case "tourist_attraction":
+                    icon = R.drawable.popular;
+                    break;
+                case "restaurant":
+                    icon = R.drawable.restaurant;
+                    break;
+                case "gas_station":
+                    icon = R.drawable.gas_station;
+                    break;
+                case "ev charger":
+                    icon = R.drawable.ev_charger;
+                    break;
+                default:
+                    icon = R.drawable.popular;
+            }
+            holder.imageView.setImageResource(icon);
             if (item.getRating() != null && StringUtils.isNotEmpty(item.getRating())) {
                 holder.ratingBarView.setRating(Float.parseFloat(item.getRating()));
             }
@@ -322,6 +355,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         recyclerCard.getAdapter().notifyItemInserted(size);
 
     }
+
     public void readData(DatabaseReference ref, final IOnGetDataListener listener) {
         listener.onStart();
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -364,7 +398,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         }
     }
 
-    private void logout () {
+    private void logout() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(SearchAlongActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

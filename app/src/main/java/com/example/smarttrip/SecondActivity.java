@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,7 +103,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     public static String now;
     public boolean expanded = true;
     public static Stack<Intent> parents = new Stack<Intent>();
-
+    ProgressBar progresssBar;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -122,6 +123,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         destAddress = bundle.getString("DestinationAddress");
         mode = bundle.getString("Mode");
         setModeViewIcon(mode);
+        progresssBar = (ProgressBar) findViewById(R.id.progressBar);
         getRoute(srcAddress, destAddress, mode, wayPointListSet);
 //
 //        String imageUri = "https://i.imgur.com/jl28EwK.jpeg";
@@ -158,9 +160,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         toolbar2.inflateMenu(R.menu.menu_main);
 
         //Initialize fragment
-        Fragment mapsFragment = new MapFragment();
+//        Fragment mapsFragment = new MapFragment();
         //open fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, mapsFragment).commit();
+//        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, mapsFragment).commit();
         usersTripInfo = new UsersTripInfo();
 
         //floating button save trip attaching click function
@@ -192,11 +194,11 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid).push();
                     List<GoogleResponse> mainList = new ArrayList<>();
                     mainList.addAll(wayPointListSet);
-                    addDatatoFirebase(tripTitle, tripPath, formattedDate,mainList);
+                    addDatatoFirebase(tripTitle, tripPath, formattedDate, mainList);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
-                    Snackbar.make(view, "SignIn to Save Trip", Snackbar.LENGTH_LONG)
+                    Snackbar.make(view, "Sign in to Save Trip", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             }
@@ -366,6 +368,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     @Override
     public void onDirectionsAPICall() {
         //show busy indicator
+        progresssBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -442,6 +445,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                 Toast.makeText(this, getString(R.string.errorRoute),
                         Toast.LENGTH_LONG).show();
             }
+            progresssBar.setVisibility(View.GONE);
 
         } catch (JSONException err) {
             err.printStackTrace();
@@ -532,8 +536,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         }
 
     }
+
     @Exclude
-    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp,List<GoogleResponse> harvestList) {
+    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp, List<GoogleResponse> harvestList) {
         // below 3 lines of code is used to set
         // data in our object class.
         //usersTripInfo.setUid(uid);
@@ -589,7 +594,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                         deleteItem(v);
                     }
                 });
-            }else{
+            } else {
                 textView.setText(address);
                 int icon = i == 0 ? R.drawable.ic_start : R.drawable.ic_finish;
 //                textView.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
@@ -616,7 +621,6 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
             }
         }
     }
-
 
 
     public static void expand(final View view) {

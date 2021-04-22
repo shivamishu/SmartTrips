@@ -88,6 +88,7 @@
         android:layout_marginBottom="20dp"
         android:text="@string/or"
         android:textAlignment="center"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

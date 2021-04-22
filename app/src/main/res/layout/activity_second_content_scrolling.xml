@@ -111,7 +111,7 @@
                         android:id="@+id/popular"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="0dip"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginEnd="5dp"
                         android:layout_weight=".5"
                         android:drawableTop="@drawable/ic_baseline_stars_24"
@@ -125,7 +125,7 @@
                         android:id="@+id/restaurant"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="0dip"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="5dp"
                         android:layout_weight=".5"
                         android:drawableTop="@drawable/ic_baseline_restaurant_24"
@@ -149,7 +149,7 @@
                         android:id="@+id/charger"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="0dip"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginEnd="5dp"
                         android:layout_weight=".5"
                         android:drawableTop="@drawable/ic_baseline_electrical_services_24"
@@ -163,7 +163,7 @@
                         android:id="@+id/gas"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="0dip"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="5dp"
                         android:layout_weight=".5"
                         android:drawableTop="@drawable/ic_baseline_local_gas_station_24"
@@ -198,6 +198,11 @@
                 android:layout_height="wrap_content"
                 android:text="@string/collapse" />
 
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
             <LinearLayout
                 android:id="@+id/wayPointList"
                 android:layout_width="match_parent"
@@ -248,6 +253,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
+                android:contentDescription="@string/todo"
                 android:src="@drawable/ic_gmaps" />
 
             <ImageButton
@@ -261,6 +267,7 @@
                 android:layout_marginTop="50dp"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
+                android:contentDescription="@string/todo"
                 android:src="@drawable/ic_whatsapp" />
 
         </RelativeLayout>
