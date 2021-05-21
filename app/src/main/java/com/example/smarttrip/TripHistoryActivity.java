@@ -1,5 +1,6 @@
 package com.example.smarttrip;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -9,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.example.smarttrip.model.GoogleResponse;
 import com.example.smarttrip.model.UsersTripInfo;
 import com.example.smarttrip.utils.IOnGetDataListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,24 +23,40 @@ import com.google.firebase.database.ValueEventListener;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Stack;
+import java.util.TimeZone;
 
 public class TripHistoryActivity extends AppCompatActivity {
+    ArrayList<UsersTripInfo> userTripHistoryList = new ArrayList<>();
     public static Stack<Intent> parents = new Stack<Intent>();
+    public RecyclerView recyclerCard;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,34 +89,123 @@ public class TripHistoryActivity extends AppCompatActivity {
 
 
         Bundle bundle = getIntent().getExtras();
-        ArrayList<UsersTripInfo> userTripHistoryList = (ArrayList<UsersTripInfo>) bundle.getSerializable("tripHistoryList");
+        userTripHistoryList = (ArrayList<UsersTripInfo>) bundle.getSerializable("tripHistoryList");
+        recyclerCard = findViewById(R.id.tripHistory_list);
+        recyclerCard.setAdapter(new TripHistoryActivity.MainCardAdapter(this, userTripHistoryList));
+//        List<String> trip_title_array = new ArrayList<String>();
+//        for (int i = 0; i < userTripHistoryList.size(); i++) {
+//            UsersTripInfo tripTitle = userTripHistoryList.get(i);
+//            trip_title_array.add(tripTitle.getUserTripTitle());
+//        }
+//        List<String> trip_link_array = new ArrayList<String>();
+//        for (int i = 0; i < userTripHistoryList.size(); i++) {
+//            UsersTripInfo tripLinks = userTripHistoryList.get(i);
+//            trip_link_array.add(tripLinks.getUserTripPath());
+//        }
+//
+//        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.trip_history_view, trip_title_array);
+//        ListView listView = (ListView) findViewById(R.id.tripHistory_list);
+//        listView.setAdapter(adapter);
 
-        List<String> trip_title_array = new ArrayList<String>();
-        for (int i = 0; i < userTripHistoryList.size(); i++) {
-            UsersTripInfo tripTitle = userTripHistoryList.get(i);
-            trip_title_array.add(tripTitle.getUserTripTitle());
-        }
-        List<String> trip_link_array = new ArrayList<String>();
-        for (int i = 0; i < userTripHistoryList.size(); i++) {
-            UsersTripInfo tripLinks = userTripHistoryList.get(i);
-            trip_link_array.add(tripLinks.getUserTripPath());
-        }
 
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.trip_history_view, trip_title_array);
-        ListView listView = (ListView) findViewById(R.id.tripHistory_list);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Uri uri = Uri.parse(trip_link_array.get(position));
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            }
-        });
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Uri uri = Uri.parse(trip_link_array.get(position));
+//                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+//                startActivity(intent);
+//            }
+//        });
 
     }
 
+    public class MainCardViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView titleView;
+        public TextView distanceView;
+        public TextView timeView;
+        public View item;
+        public TextView tripTimestamp;
+        public TextView tripMode;
+
+
+        public MainCardViewHolder(@NonNull View itemView) {
+            super(itemView);
+            titleView = itemView.findViewById(R.id.historyTitleView);
+            timeView = itemView.findViewById(R.id.historyTime);
+            distanceView = itemView.findViewById(R.id.historyDistance);
+            item = itemView;
+            tripTimestamp = itemView.findViewById(R.id.tripTimestamp);
+            tripMode = itemView.findViewById(R.id.tripMode);
+
+        }
+    }
+
+    public class MainCardAdapter extends RecyclerView.Adapter<TripHistoryActivity.MainCardViewHolder> {
+        private ArrayList<UsersTripInfo> dataList;
+        private Context context;
+
+        public MainCardAdapter(Context context, ArrayList<UsersTripInfo> dataList) {
+            this.context = context;
+            this.dataList = dataList;
+        }
+
+
+        @NonNull
+        @Override
+        public TripHistoryActivity.MainCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            CardView itemView = (CardView) LayoutInflater.from(context).inflate(R.layout.trip_history_view, parent, false);
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                public void onClick(View v) {
+//                    CheckBox cb = v.findViewById(R.id.checkBox);
+//                    cb.toggle();
+//                }
+//            });
+            return new TripHistoryActivity.MainCardViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull TripHistoryActivity.MainCardViewHolder holder, int position) {
+            UsersTripInfo item = dataList.get(position);
+            holder.titleView.setText(item.getUserTripTitle());
+            holder.distanceView.setText("Total Distance: "+ item.getTotalDistance());
+            holder.timeView.setText("Total Time: "+ item.getTotalTime());
+            holder.tripTimestamp.setText("Trip Date: " + item.getUserTripTimeStamp());
+            String tripMode = item.getTripMode();
+            int modeIcon;
+            switch (tripMode) {
+                case "bicycling":
+                    modeIcon = R.drawable.ic_baseline_directions_bike_24;
+                    break;
+                case "walking":
+                    modeIcon = R.drawable.ic_baseline_directions_walk_24;
+                    break;
+                case "transit":
+                    modeIcon = R.drawable.ic_baseline_directions_transit_24;
+                    break;
+                default:
+                    modeIcon = R.drawable.ic_baseline_directions_car_24;
+            }
+
+            holder.tripMode.setCompoundDrawablesWithIntrinsicBounds(0, 0, modeIcon, 0);
+
+
+            holder.item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri uri = Uri.parse(item.getUserTripPath());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return dataList.size();
+        }
+    }
 
     public void readData(DatabaseReference ref, final IOnGetDataListener listener) {
         listener.onStart();

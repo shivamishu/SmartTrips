@@ -214,6 +214,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
         public TextView titleView;
         public TextView distanceView;
         public TextView timeView;
+        public  TextView totalTimeView;
         public CheckBox checkBox;
         public View item;
         public TextView openNowView;
@@ -224,6 +225,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             super(itemView);
             titleView = itemView.findViewById(R.id.titleView);
             timeView = itemView.findViewById(R.id.time);
+            totalTimeView = itemView.findViewById(R.id.totalTime);
             distanceView = itemView.findViewById(R.id.distance);
             checkBox = itemView.findViewById(R.id.checkBox);
             item = itemView;
@@ -267,6 +269,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             Calendar cal = Calendar.getInstance();
             TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
             String durationValue = item.getDurationValue();
+            holder.totalTimeView.setText("Time: " + item.getDurationText());
             cal.add(Calendar.SECOND, Integer.parseInt(durationValue));
             DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             dateFormat.setTimeZone(tz);
@@ -274,7 +277,7 @@ public class SearchAlongActivity extends AppCompatActivity implements IDistanceM
             holder.timeView.setText("ETA: " + time);
             holder.titleView.setText(item.getName());
 //            holder.timeView.setText(item.getDurationText());
-            holder.distanceView.setText(item.getDistanceText());
+            holder.distanceView.setText("Distance: " + item.getDistanceText());
             holder.openNowView.setText(item.getOpenNow());
             int icon;
             switch (filterType) {

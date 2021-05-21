@@ -104,7 +104,8 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     public boolean expanded = true;
     public static Stack<Intent> parents = new Stack<Intent>();
     ProgressBar progresssBar;
-
+    String historyTotalDistance;
+    String historyTotalTime;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -180,7 +181,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     String sourceAddress = srcAddress.indexOf(",") > -1 ? srcAddress.substring(0, srcAddress.indexOf(",")) : srcAddress;
                     DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, Locale.US);
                     String formattedDate = df.format(new Date());
-                    String tripTitle = sourceAddress + " - " + getTripTitle() + " as on " + formattedDate;
+                    String tripTitle = sourceAddress + " - " + getTripTitle();
                     // Check if user's email is verified
                     // Check if user's email is verified
                     boolean emailVerified = user.isEmailVerified();
@@ -194,7 +195,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
                     databaseReference = firebaseDatabase.getReference().child("UsersTripInfo").child(uid).push();
                     List<GoogleResponse> mainList = new ArrayList<>();
                     mainList.addAll(wayPointListSet);
-                    addDatatoFirebase(tripTitle, tripPath, formattedDate, mainList);
+                    addDatatoFirebase(tripTitle, tripPath, formattedDate, mainList, historyTotalTime, historyTotalDistance, mode);
                     Snackbar.make(view, getString(R.string.tripSaved), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
@@ -441,6 +442,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
 //
 //                distanceString = distanceString.replace("mi", getString(R.string.miles));
                 setTripTravelDetails(distanceString, durationString);
+                saveTravelDetails(distanceString, durationString);
             } else {
                 Toast.makeText(this, getString(R.string.errorRoute),
                         Toast.LENGTH_LONG).show();
@@ -491,6 +493,14 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         timeView.setText(durationString);
     }
 
+
+    private void saveTravelDetails(String distanceString, String durationString) {
+//        distanceView.setText(getString(R.string.distance) + " " + distanceString);
+//        timeView.setText(getString(R.string.time) + " " + durationString);
+        historyTotalDistance = distanceString;
+        historyTotalTime = durationString;
+    }
+
     private void decodePolyline(String encodedPolylinePoints) {
         if (decodedPoints != null) {
             decodedPoints.clear();
@@ -538,7 +548,7 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
     }
 
     @Exclude
-    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp, List<GoogleResponse> harvestList) {
+    private void addDatatoFirebase(String tripTitle, String tripPath, String tripTimeStamp, List<GoogleResponse> harvestList, String historyTotalTime, String historyTotalDistance, String tripMode) {
         // below 3 lines of code is used to set
         // data in our object class.
         //usersTripInfo.setUid(uid);
@@ -548,6 +558,9 @@ public class SecondActivity extends AppCompatActivity implements IDirectionAPICa
         usersTripInfo.setUserTripPath(tripPath);
         usersTripInfo.setUserTripTimeStamp(tripTimeStamp);
         usersTripInfo.setHarvestList(harvestList);
+        usersTripInfo.setTotalTime(historyTotalTime);
+        usersTripInfo.setTotalDistance(historyTotalDistance);
+        usersTripInfo.setTripMode(tripMode);
         databaseReference.setValue(usersTripInfo);
     }
 

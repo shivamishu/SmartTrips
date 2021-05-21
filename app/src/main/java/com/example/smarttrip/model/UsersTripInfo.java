@@ -8,13 +8,18 @@ import java.util.HashSet;
 import java.util.List;
 
 public class UsersTripInfo implements Serializable {
-//    private String uid;
+
+
+    //    private String uid;
 //    private String userName;
 //    private String userEmail;
     private String userTripPath;
     private String userTripTitle;
     private String userTripTimeStamp;
     private List<GoogleResponse> harvestList;
+    private String totalTime;
+    private String totalDistance;
+    private String tripMode;
 
 
 
@@ -41,6 +46,30 @@ public class UsersTripInfo implements Serializable {
 //    public void setUserEmail(String userEmail) {
 //        this.userEmail = userEmail;
 //    }
+
+    public String getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(String totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public String getTotalDistance() {
+        return totalDistance;
+    }
+
+    public void setTotalDistance(String totalDistance) {
+        this.totalDistance = totalDistance;
+    }
+
+    public String getTripMode() {
+        return tripMode;
+    }
+
+    public void setTripMode(String tripMode) {
+        this.tripMode = tripMode;
+    }
 
     public String getUserTripPath() {
         return userTripPath;

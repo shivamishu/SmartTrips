@@ -6,7 +6,7 @@
     <string name="next">Next</string>
     <string name="round_trip">Round Trip ?</string>
     <string name="todo">TODO</string>
-    <string name="tripDetails">Trip Details</string>
+    <string name="tripDetails">Trip</string>
     <string name="errorSrcDest">Please enter source and destination address to proceed</string>
     <string name="errorRoute">An error occurred while fetching the route. Please go back and try again.</string>
     <string name="distance">Distance:</string>
@@ -41,7 +41,7 @@
     <string name="revoke_access">revoke access</string>
     <string name="welcome">Welcome</string>
     <string name="signinWithGoogle">Sign In With Google</string>
-    <string name="continueWithoutSignin">Continue As Guest</string>
+    <string name="continueWithoutSignin">Continue Guest</string>
     <string name="or">OR</string>
     <string name="tripHistory">Trip History</string>
     <string name="title_activity_trip_history">TripHistoryActivity</string>
@@ -55,4 +55,12 @@
     <string name="tripHistory_list">Trip History</string>
     <string name="collapse">Collapse Details</string>
     <string name="expand">Expand Details</string>
+    <string name="tripTimestamp">Trip Date</string>
+    <string name="totalTime">Total Time</string>
+    <string name="totalDistance">Total Distance</string>
+
+
+
+
+
 </resources>
