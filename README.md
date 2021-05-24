@@ -59,5 +59,19 @@ Save the above file in directory: app/google-service.json
 Open the codebase, build and run the app.  
 
 
+### Tech Details:
+Google Firebase for Authentication.  
+Custom Algorithm to Calculate the Optimized Waypoints, to consider apt radius for places search, and to minimize the detours.   
+Jackson Parser and annotations.  
+RecyclerView, CardView, Android MaterialUI Floating Buttons, NestedScrollView, Menu Drawer, Fragments, Displaying Home Up Button(Customized the back arrow button to reversed app icon with back arrow).  
+Custom Control : Collapsable Panel with Animation.  
+Custom Reusable Class for Calling Async REST APIs.  
+Google Maps with custom markers.  
+WhatsApp Overlay on Maps.  
+Navigation using Google Maps.  
+Google Firebase Realtime database for saving the trip information.  
+
+
+
 ## Demo
 [Demo URL](https://drive.google.com/file/d/1EMNWDa_UVcH9VySVWNya_wVXKE0JKYlV/view?usp=sharing)
