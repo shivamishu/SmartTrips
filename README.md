@@ -44,12 +44,20 @@ Screen 6:Users can save their favorite trips for future use and can be viewed in
 
 
 ## Setup Required
-1. Clone/Download the codebase and build the project in Android Studio. 
-3. Create a project on Google Cloud
-4. Enable and generate Google Maps SDK, 
-5. Locate/Create file 'google_maps_api.xml' under values directory and enter your own Google Maps SDK, Directions and Places API key in the file.
-6. Locate/Create file 'local.properties' in root directory and add your own Google API Key in the file.
-7. Open the codebase, build and run.
+Clone/Download the codebase and build the project in Android Studio:  
+https://github.com/shivamishu/SmartTrips.git  
+Create a project on Google Cloud.  
+Enable and generate API Keys for Google Maps SDK, Directions and Places API.  
+Locate/Create file 'google_maps_api.xml' under values directory and enter your own above API Keys in this file.  
+Also, Locate/Create file 'local.properties' in root directory and add your own above Google API Key in this file.  
+Create Firebase Account and connect to Firebase Console.  
+Add project with name “smart trips” and create project.  
+Follow steps to generate a google-services.json file (app/google-service.json):   
+https://firebase.google.com/docs/android/setup  
+In the project under Firebase console, go to Authentication and make sure that Email/Password and Google is enabled.  
+Save the above file in directory: app/google-service.json  
+Open the codebase, build and run the app.  
+
 
 ## Demo
 [Demo URL](https://drive.google.com/file/d/1EMNWDa_UVcH9VySVWNya_wVXKE0JKYlV/view?usp=sharing)
