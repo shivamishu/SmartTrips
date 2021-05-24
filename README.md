@@ -4,6 +4,9 @@
 Author: Shivam Shrivastav, Praveen Nayak  
 Smart Trips: An Android mobile application to build and save smart trips.
 
+### Demo
+[App Intro](https://d3fu3214bbcc0g.cloudfront.net/smarttrips.html)
+
 ## Overview:
 Smart Trips is a smart travel planner app built on an android platform which lets you plan your trip by selecting interesting destinations along the route.  
 
