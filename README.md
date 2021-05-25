@@ -1,5 +1,4 @@
-# CMPE277 Project
-## Smart Trips
+# Smart Trips
  
 Author: Shivam Shrivastav, Praveen Nayak  
 Smart Trips: An Android mobile application to build and save smart trips.
