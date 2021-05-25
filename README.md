@@ -4,8 +4,8 @@
 Author: Shivam Shrivastav, Praveen Nayak  
 Smart Trips: An Android mobile application to build and save smart trips.
 
-### Demo
-[App Intro](https://d3fu3214bbcc0g.cloudfront.net/smarttrips.html)
+### Application Demo
+[Demo Video](https://d3fu3214bbcc0g.cloudfront.net/smarttrips.html)
 
 ## Overview:
 Smart Trips is a smart travel planner app built on an android platform which lets you plan your trip by selecting interesting destinations along the route.  
@@ -15,12 +15,14 @@ The app provides optimized routes to popular places  and allows you to choose ga
 App offers to avoid deviation/long detours to reach places of interest and other essential places.  
 
 ## Problem Statement
+![Picture1](https://user-images.githubusercontent.com/24988178/119447169-5a63fe00-bce4-11eb-8fda-a8cb5bc16172.png)
 Nearby places displayed by Google Maps consider only the current location suggestions.  
 While searching along the route,  Google Maps shows only the places which are close to the current location.  
 The search radius is large which results in a huge list to be sorted by the user manually.  
 This is prone to errors and involves unnecessary detours.  
 
 ## Solution Proposed
+![Picture2](https://user-images.githubusercontent.com/24988178/119447166-59cb6780-bce4-11eb-8c49-d00c9a016d56.png)
 Nearby places displayed by our app considers the entire route by optimally selecting the waypoints.  
 Even if the search radius is large, the search results of the places will be shown only if it falls under the custom polygon(red bound polyline).  
 This will avoid unnecessary long detours and provide an optimized route.   
@@ -33,6 +35,9 @@ Display Time taken to reach each of the popular places so that users can plan ac
 
 Our app shows popular places in close proximity along the route, unlike Google Maps.  
 Our app shows optimized routes for multiple stops to avoid unnecessary detours, which is a manual tedious task, by hit and trial, in Google Maps.  
+
+## Architecture Diagram
+![Picture3](https://user-images.githubusercontent.com/24988178/119447165-5932d100-bce4-11eb-8926-6a9e2ff5cedf.png)
 
 ### Logic Flow and Functionality
 
@@ -74,7 +79,11 @@ WhatsApp Overlay on Maps.
 Navigation using Google Maps.  
 Google Firebase Realtime database for saving the trip information.  
 
+## Screenshots
 
-
-## Demo
-[Demo URL](https://drive.google.com/file/d/1EMNWDa_UVcH9VySVWNya_wVXKE0JKYlV/view?usp=sharing)
+![Picture4](https://user-images.githubusercontent.com/24988178/119447161-5932d100-bce4-11eb-9e92-61df86233024.png)
+![Picture5](https://user-images.githubusercontent.com/24988178/119447159-589a3a80-bce4-11eb-8279-36e197d1e870.png)
+![Picture6](https://user-images.githubusercontent.com/24988178/119447157-5801a400-bce4-11eb-8a2e-4496075eb989.png)
+![Picture7](https://user-images.githubusercontent.com/24988178/119447155-5801a400-bce4-11eb-9771-df9747c70877.png)
+![Picture8](https://user-images.githubusercontent.com/24988178/119447153-57690d80-bce4-11eb-91c3-863bc1e08d4f.png)
+![Picture9](https://user-images.githubusercontent.com/24988178/119447150-56d07700-bce4-11eb-8bfd-f37d99f42ab0.png)
