@@ -66,7 +66,7 @@ Save the above file in directory: app/google-service.json
 Open the codebase, build and run the app.  
 
 
-### Tech Details:
+### Techical Details:
 Google Firebase for Authentication.  
 Custom Algorithm to Calculate the Optimized Waypoints, to consider apt radius for places search, and to minimize the detours.   
 Jackson Parser and annotations.  
