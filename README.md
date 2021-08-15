@@ -1,7 +1,7 @@
 # Smart Trips
  
 Author: Shivam Shrivastav, Praveen Nayak  
-Smart Trips: An Android mobile application to build and save smart trips.
+Smart Trips: An Android mobile application to build, save and share smart trips.
 
 ### Application Demo
 [Demo Video](https://drive.google.com/file/d/1GPf3imPkL6KY7ImcRIDgC4k_o4yHrgdC/view?usp=sharing)
